@@ -1,0 +1,19 @@
+﻿  Voxelizer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.cpp(33,70): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.31.31103\include\memory(3417,56): warning C4244: 'argument': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.cpp(41): message : see reference to function template instantiation 'std::unique_ptr<GL::FrameBuffer,std::default_delete<GL::FrameBuffer>> std::make_unique<GL::FrameBuffer,T&,T&,int,GL::TextureFormat,0>(T &,T &,int &&,GL::TextureFormat &&)' being compiled
+          with
+          [
+              T=float
+          ]
+  VoxelizerDrawStratagy.cpp
+  Generating Code...
+  global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

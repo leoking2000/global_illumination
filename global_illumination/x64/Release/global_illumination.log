@@ -1,0 +1,32 @@
+﻿  AssetManagement.cpp
+  MeshFactory.cpp
+  GeometryDrawStratagy.cpp
+  ShadowMapDrawStrategy.cpp
+  ObjLoader.cpp
+  ShaderFactory.cpp
+  TextureFactory.cpp
+  FrameBuffer.cpp
+  IndexBuffer.cpp
+  Mesh.cpp
+  OpenGL.cpp
+  Shader.cpp
+  Texture.cpp
+  VertexArray.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Graphics\VertexArray.cpp(98,3): warning C4312: 'type cast': conversion from 'u32' to 'const void *' of greater size
+  VertexBuffer.cpp
+  GeometryNode.cpp
+  Node.cpp
+  Scene.cpp
+  Window.cpp
+  main.cpp
+  Compiling...
+  Renderer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Renderer\Renderer.cpp(170,61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Camera.cpp
+  FileUtilities.cpp
+  Application.cpp
+  Generating code
+  Compiler switch has changed, fall back to full compilation.
+  All 3274 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Release\global_illumination.exe
