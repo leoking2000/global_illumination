@@ -69,7 +69,7 @@ void main()
 		result_axis = result_axis || (resultX.r | resultX.g | resultX.b | resultX.a) > 0u;
 		
 		// mark current bit as occupied (bitZ is always 1)
-		result |= (result_axis == true)? bitZ : uvec4(0u,0u,0u,0u);
+		result |= (result_axis == true) ? bitZ : uvec4(0u,0u,0u,0u);
 
 	}
 

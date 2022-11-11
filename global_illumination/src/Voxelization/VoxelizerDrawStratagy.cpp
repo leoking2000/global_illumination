@@ -11,7 +11,7 @@ namespace GL
 	VoxelizerDrawStratagy::VoxelizerDrawStratagy(const VoxelizerData& data)
 		:
 		m_data(data),
-		m_framebuffer(data.resolution, data.resolution, 3, TextureFormat::RGBA32F, true)
+		m_framebuffer(data.resolution, data.resolution, 3, TextureFormat::RGBA32UI, true)
 	{
 		Init();
 	}
@@ -108,7 +108,7 @@ namespace GL
 		up = glm::vec3(0, 1, 0);
 		m_view_axis[AXIS_Z] = glm::lookAt(eye, center, up);
 		m_proj_axis[AXIS_Z] = glm::ortho(-half_size.x, half_size.x, -half_size.y, half_size.y, 0.0f, size.z);
-		m_proj_axis[AXIS_Z] = glm::ortho(-half_size.x, half_size.x, -half_size.y, half_size.y, 0.0f, size.z);
+		m_viewport[AXIS_Z] = glm::vec4(0.0f, 0.0f, m_data.dimensions.x, m_data.dimensions.y);
 
 		for (int i = 0; i < 3; ++i)
 		{

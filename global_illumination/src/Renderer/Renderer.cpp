@@ -61,7 +61,7 @@ namespace GL
 		GEOMETRY_STRATEGY.ClearFrameBuffer();
 		scene.Draw(GEOMETRY_STRATEGY, proj, scene.camera.GetCameraView());
 
-		static bool renderPreviewSpheres = false;
+		static bool renderPreviewSpheres = true;
 		if (window.KeyIsPressAsButton(KEY_V))
 		{
 			renderPreviewSpheres = !renderPreviewSpheres;

@@ -16,29 +16,13 @@ namespace GL
 
 	void Voxelizer::Init()
 	{
-		// Init Voxelizer Data //
-		glm::vec3 boxSize = m_data.voxelizationArea.GetSize();
-		// the voxel resolution is set to be the resolution of the box's max side
-		glm::vec3 ratio = boxSize / m_data.voxelizationArea.GetMaxSide();
-
-		glm::ivec3 res(0);
-
-		// given that, calculate a uniform sized voxel grid
-		// the size of the voxel is the ratio between the size and the max side (1.0 for the max side)
-		res = (f32)m_data.resolution * ratio + 0.5f;
-		m_data.dimensions = glm::max(res, glm::ivec3(1));
-
-		glm::vec3 voxel_side = boxSize / glm::vec3(m_data.dimensions);
-		m_data.voxel_size = voxel_side.x;
-		m_data.voxel_grid_size = m_data.dimensions.x * m_data.dimensions.y * m_data.dimensions.z;
-
 		// Create the VoxelizerDrawStratagy //
 		m_strategie = std::make_unique<VoxelizerDrawStratagy>(m_data);
 
 		// Create merge Framebuffer and shader //
 		m_voxels = std::make_unique<FrameBuffer>(
 			m_data.dimensions.x, m_data.dimensions.y, 1,
-			TextureFormat::RGBA32F);
+			TextureFormat::RGBA32UI);
 
 		m_mergeShader = AssetManagement::CreateShader("Voxelization\\ThreeWayBinaryMerge");
 
@@ -48,6 +32,48 @@ namespace GL
 		// make usefull meshs
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 		m_cube = AssetManagement::CreateMesh(DefaultShape::CUBE);
+
+		/*
+		// Make Debug voxels to test DrawPreviewSpheres
+		u32* v = new u32[m_data.dimensions.x * m_data.dimensions.y * 4];
+
+		for (int y = 0; y < m_data.dimensions.y; y++)
+		{
+			for (int x = 0; x < m_data.dimensions.x; x++)
+			{
+				u32 index = (int(x + y * m_data.dimensions.x)) * 4;
+
+				v[index + 0] = 0x00000000u;
+				v[index + 1] = 0x00000000u;
+				v[index + 2] = 0x00000000u;
+				v[index + 3] = 0x00000000u;
+
+				if (x == 0 && y == 0)
+				{
+					v[index + 0] = 0xFFFFFFFFu;
+					v[index + 1] = 0xFFFFFFFFu;
+					v[index + 2] = 0x00000000u;
+					v[index + 3] = 0xFFFFFFFFu;
+				}
+
+				if (64 <= x && x <= 74 && 64 <= y && y <= 74)
+				{
+					v[index + 0] = 0x00000000u;
+					v[index + 1] = 0xFFFFFFFFu;
+					v[index + 2] = 0x00000000u;
+					v[index + 3] = 0x00000000u;
+				}
+			}
+		}
+
+		_voxels = std::make_unique<Texture>(DIM_2D, glm::vec3(m_data.dimensions.x, m_data.dimensions.y, 0),
+			TextureFormat::RGBA32UI,
+			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
+			TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)v);
+
+		delete[] v;
+		/////////////////////////////////////////////////////////
+		*/
 	}
 
 	void Voxelizer::Voxelize(Scene& scene)
@@ -67,11 +93,9 @@ namespace GL
 		vds.GetFrameBuffer().BindColorTexture(0, 1);
 
 		ShaderProgram& shader = *AssetManagement::GetShader(m_mergeShader);
-		glm::mat4x4 mat = glm::ortho<f32>(-1, 1, -1, 1, 1, -1);
 		glm::ivec3 u_dimensions(m_data.dimensions);
 
-		shader.SetUniform("u_mvp", mat);
-		shader.SetUniform("u_sampler_three_way", 0);
+		shader.SetUniform("u_sampler_three_way", 1);
 		shader.SetUniform("u_dimensions", u_dimensions);
 
 
@@ -84,6 +108,8 @@ namespace GL
 
 	void Voxelizer::DrawPreviewSpheres(const FrameBuffer& framebuffer, const glm::mat4& proj_view)
 	{
+		VoxelizerDrawStratagy& vds = (VoxelizerDrawStratagy&)(*m_strategie);
+
 		framebuffer.Bind();
 
 		glCall(glDisable(GL_BLEND));

@@ -21,7 +21,8 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
 	// sample the voxels in the neighborhood of pos
 	ivec2 pos = ivec2(grid_position.xy);
 
-	uvec4 master_voxel = texelFetch(u_voxels, pos.xy, 0);
+	int lod = 0;
+	uvec4 master_voxel = texelFetch(u_voxels, pos.xy, lod);
 	
 	// check if the CRC voxel is valid
 	uvec4 slice = master_voxel;
@@ -54,5 +55,6 @@ void main()
 
     gl_Position = u_proj_view_matrix * vec4(pos_wcs,1);
 
+	position = pos_wcs;
 	normal = anormal;
 }
