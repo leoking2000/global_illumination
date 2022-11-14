@@ -53,14 +53,21 @@ namespace GL
 		void Init();
 		void Voxelize(Scene& scene);
 		void DrawPreviewSpheres(const FrameBuffer& framebuffer,const glm::mat4& proj_view);
-		FrameBuffer& GetVoxels();
+		FrameBuffer& GetVoxels(); // returns the Dilated voxel space
+	private:
+		void ThreeWayStep(Scene& scene);
+		void MergeStep();
+		void DilationStep();
 	private:
 		VoxelizerData m_data;
 
 		std::unique_ptr<DrawStrategy> m_strategie;
 
-		std::unique_ptr<FrameBuffer> m_voxels;
+		std::unique_ptr<FrameBuffer> m_merge_voxels;
 		u32 m_mergeShader;
+
+		std::unique_ptr<FrameBuffer> m_voxels_dilated;
+		u32 m_dilationShader;
 
 		u32 m_previewSpheresShader;
 

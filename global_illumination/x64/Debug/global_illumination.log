@@ -1,4 +1,22 @@
-﻿  Voxelizer.cpp
+﻿  Application.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  GeometryDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Renderer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Voxelizer.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
@@ -14,4 +32,17 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
           [
               T=float
           ]
+  VoxelizerDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  main.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Generating Code...
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

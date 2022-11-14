@@ -20,11 +20,16 @@ namespace GL
 		m_strategie = std::make_unique<VoxelizerDrawStratagy>(m_data);
 
 		// Create merge Framebuffer and shader //
-		m_voxels = std::make_unique<FrameBuffer>(
+		m_merge_voxels = std::make_unique<FrameBuffer>(
 			m_data.dimensions.x, m_data.dimensions.y, 1,
 			TextureFormat::RGBA32UI);
-
 		m_mergeShader = AssetManagement::CreateShader("Voxelization\\ThreeWayBinaryMerge");
+
+		// Create dilation Framebuffer and shader //
+		m_voxels_dilated = std::make_unique<FrameBuffer>(
+			m_data.dimensions.x, m_data.dimensions.y, 1,
+			TextureFormat::RGBA32UI);
+		m_dilationShader = AssetManagement::CreateShader("Voxelization\\DilateVoxelSpace");
 
 		// make preview shader
 		m_previewSpheresShader = AssetManagement::CreateShader("Voxelization\\BinaryPreviewSpheres");
@@ -33,77 +38,13 @@ namespace GL
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 		m_cube = AssetManagement::CreateMesh(DefaultShape::CUBE);
 
-		/*
-		// Make Debug voxels to test DrawPreviewSpheres
-		u32* v = new u32[m_data.dimensions.x * m_data.dimensions.y * 4];
-
-		for (int y = 0; y < m_data.dimensions.y; y++)
-		{
-			for (int x = 0; x < m_data.dimensions.x; x++)
-			{
-				u32 index = (int(x + y * m_data.dimensions.x)) * 4;
-
-				v[index + 0] = 0x00000000u;
-				v[index + 1] = 0x00000000u;
-				v[index + 2] = 0x00000000u;
-				v[index + 3] = 0x00000000u;
-
-				if (x == 0 && y == 0)
-				{
-					v[index + 0] = 0xFFFFFFFFu;
-					v[index + 1] = 0xFFFFFFFFu;
-					v[index + 2] = 0x00000000u;
-					v[index + 3] = 0xFFFFFFFFu;
-				}
-
-				if (64 <= x && x <= 74 && 64 <= y && y <= 74)
-				{
-					v[index + 0] = 0x00000000u;
-					v[index + 1] = 0xFFFFFFFFu;
-					v[index + 2] = 0x00000000u;
-					v[index + 3] = 0x00000000u;
-				}
-			}
-		}
-
-		_voxels = std::make_unique<Texture>(DIM_2D, glm::vec3(m_data.dimensions.x, m_data.dimensions.y, 0),
-			TextureFormat::RGBA32UI,
-			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
-			TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)v);
-
-		delete[] v;
-		/////////////////////////////////////////////////////////
-		*/
 	}
 
 	void Voxelizer::Voxelize(Scene& scene)
 	{
-		VoxelizerDrawStratagy& vds = (VoxelizerDrawStratagy&)(*m_strategie);
-
-		vds.ClearFrameBuffer();
-		scene.Draw(vds, glm::identity<glm::mat4>(), glm::identity<glm::mat4>());
-
-		m_voxels->Bind();
-
-		glCall(glViewport(0, 0, (u32)m_data.dimensions.x, (u32)m_data.dimensions.y));
-		glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-		glCall(glDisable(GL_DEPTH_TEST));
-
-		vds.GetFrameBuffer().BindColorTexture(0, 1);
-
-		ShaderProgram& shader = *AssetManagement::GetShader(m_mergeShader);
-		glm::ivec3 u_dimensions(m_data.dimensions);
-
-		shader.SetUniform("u_sampler_three_way", 1);
-		shader.SetUniform("u_dimensions", u_dimensions);
-
-
-		shader.Bind();
-		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
-		shader.UnBind();
-
-		m_voxels->UnBind();
+		ThreeWayStep(scene);
+		MergeStep();
+		DilationStep();
 	}
 
 	void Voxelizer::DrawPreviewSpheres(const FrameBuffer& framebuffer, const glm::mat4& proj_view)
@@ -119,7 +60,7 @@ namespace GL
 		ShaderProgram& shader = *AssetManagement::GetShader(m_previewSpheresShader);
 		Mesh& mesh = *AssetManagement::GetMesh(m_cube);
 
-		m_voxels->BindColorTexture(0, 6);
+		m_voxels_dilated->BindColorTexture(0, 6);
 
 		shader.SetUniform("u_voxels", 6);
 
@@ -147,7 +88,61 @@ namespace GL
 
 	FrameBuffer& Voxelizer::GetVoxels()
 	{
-		return *m_voxels;
+		return *m_voxels_dilated;
+	}
+
+	void Voxelizer::ThreeWayStep(Scene& scene)
+	{
+		m_strategie->ClearFrameBuffer();
+		scene.Draw(*m_strategie, glm::identity<glm::mat4>(), glm::identity<glm::mat4>());
+	}
+
+	void Voxelizer::MergeStep()
+	{
+		m_merge_voxels->Bind();
+
+		glCall(glViewport(0, 0, (u32)m_data.dimensions.x, (u32)m_data.dimensions.y));
+		glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		glCall(glDisable(GL_DEPTH_TEST));
+
+		m_strategie->GetFrameBuffer().BindColorTexture(0, 1);
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_mergeShader);
+		glm::ivec3 u_dimensions(m_data.dimensions);
+
+		shader.SetUniform("u_sampler_three_way", 1);
+		shader.SetUniform("u_dimensions", u_dimensions);
+
+
+		shader.Bind();
+		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
+		shader.UnBind();
+
+		m_merge_voxels->UnBind();
+	}
+
+	void Voxelizer::DilationStep()
+	{
+		m_voxels_dilated->Bind();
+
+		glCall(glViewport(0, 0, (u32)m_data.dimensions.x, (u32)m_data.dimensions.y));
+		glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		glCall(glDisable(GL_DEPTH_TEST));
+
+		m_merge_voxels->BindColorTexture(0, 1);
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_dilationShader);
+
+		// set uniforms
+		shader.SetUniform("u_voxels", 1);
+
+		shader.Bind();
+		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
+		shader.UnBind();
+
+		m_voxels_dilated->UnBind();
 	}
 
 

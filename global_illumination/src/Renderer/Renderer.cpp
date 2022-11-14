@@ -45,6 +45,11 @@ namespace GL
 
 	void Renderer::Render(u32 width, u32 height, Scene& scene)
 	{
+		if (window.KeyIsPressAsButton(KEY_F12))
+		{
+			AssetManagement::ReloadShaders();
+		}
+
 		UpdateWindowSize(width, height);
 
 		m_voxelizer.Voxelize(scene);
@@ -179,6 +184,7 @@ namespace GL
 
 		Model& m = *AssetManagement::GetModel(model);
 
+		/*
 		ImGui::Begin("Model Material");
 
 		static int i = 0;
@@ -190,6 +196,7 @@ namespace GL
 		
 
 		ImGui::End();
+		*/
 	}
 
 }
