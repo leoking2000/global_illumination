@@ -13,7 +13,23 @@ uniform vec3 u_camera_pos;
 uniform vec3 u_camera_dir;
 
 // light
-uniform vec3 u_light_dir;
+struct Light
+{
+	int type; // 0 -> directional, 1 -> spotlight
+	vec3 pos;
+	vec3 dir;
+
+	float cutOff;
+	float outerCutOff;
+
+	float constant;
+	float linear;
+	float quadratic;
+
+	vec3 radiance;
+};
+
+uniform Light u_light;
 
 // shadows
 uniform mat4 u_light_projection_view;
@@ -63,13 +79,15 @@ float shadow(vec3 pos)
 	// transform to [0,1] range
     ndc = ndc * 0.5 + 0.5;
 
+	float outside_light = u_light.type == 0 ? 1.0 : 0.0;
+
 	// check that we are inside light clipping frustum
-	if (ndc.x < 0.0) return 1.0;
-	if (ndc.y < 0.0) return 1.0;
-	if (ndc.x > 1.0) return 1.0;
-	if (ndc.y > 1.0) return 1.0;
-    if (ndc.z < 0.0) return 1.0;
-    if (ndc.z > 1.0) return 1.0;
+	if (ndc.x < 0.0) return outside_light;
+	if (ndc.y < 0.0) return outside_light;
+	if (ndc.x > 1.0) return outside_light;
+	if (ndc.y > 1.0) return outside_light;
+    if (ndc.z < 0.0) return outside_light;
+    if (ndc.z > 1.0) return outside_light;
 
 	// sample shadow map
 	return shadow_pcf2x2_weighted(ndc);
@@ -78,11 +96,6 @@ float shadow(vec3 pos)
 /**********************************
 	LIGHT
 ***********************************/
-
-vec3 CalculateSurfToLight()
-{
-	return -u_light_dir;
-}
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -123,25 +136,28 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-/**********************************
-	MAIN
-***********************************/
-
-void main()
+vec3 CalculateSurfToLight(vec3 pos)
 {
-	vec3 lightColor = vec3(1);
+	if(u_light.type == 0)
+	{
+		return -u_light.dir;
+	}
 
-	float d = texture(u_tex_depth, tex_cord).r;
-	if(d == 1.0) discard;
+	return normalize(u_light.pos - pos);
+}
 
-	vec3 albedo = texture(u_tex_albedo, tex_cord).xyz;
-	vec3 pos = texture(u_tex_pos, tex_cord).xyz;
-	vec3 normal = texture(u_tex_normal, tex_cord).xyz;
+float CalculateAttenuation(vec3 pos)
+{
+	float distance    = length(u_light.pos - pos);
+    float attenuation = 1.0 / (u_light.constant + u_light.linear * distance + u_light.quadratic * (distance * distance));
 
-	vec3 mask = texture(u_tex_mask, tex_cord).rgb;
+	return attenuation;
+}
+
+vec3 DoLightingCalculations(vec3 albedo, vec3 pos, vec3 normal, vec3 mask)
+{
 	float roughness = mask.r;
 	float metallic = mask.g;
-	float ao = 1.0;
 
 	float shadow_value = shadow(pos);
 
@@ -149,11 +165,11 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
 	vec3 surfToEye = normalize(u_camera_pos - pos.xyz);
-	vec3 surfToLight = CalculateSurfToLight();
+	vec3 surfToLight = CalculateSurfToLight(pos);
 	vec3 halfwayDir = normalize(surfToLight + surfToEye);
 
-	float attenuation = 1.0;
-	vec3 radiance  = lightColor * attenuation;
+	float attenuation = u_light.type == 0 ? 1.0 : CalculateAttenuation(pos);
+	vec3 radiance  =  u_light.radiance * attenuation;
 
 	// cook-torrance brdf
     float NDF = DistributionGGX(normal, halfwayDir, roughness);        
@@ -171,10 +187,42 @@ void main()
 	float NdotL = max(dot(normal, surfToLight), 0.0);            
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
-	vec3 ambient = vec3(0.01) * albedo * ao;
-    vec3 color = ambient + Lo * shadow_value;
+    vec3 color = Lo * shadow_value;
 
-	color = color / (color + vec3(1.0));
+	return color;
+}
+
+/**********************************
+	MAIN
+***********************************/
+
+void main()
+{
+	float d = texture(u_tex_depth, tex_cord).r;
+	if(d == 1.0) discard;
+
+	vec3 albedo = texture(u_tex_albedo, tex_cord).rgb;
+	vec3 pos = texture(u_tex_pos, tex_cord).xyz;
+	vec3 normal = texture(u_tex_normal, tex_cord).xyz;
+	vec3 mask = texture(u_tex_mask, tex_cord).rgb;
+	float ao = 1.0;  // TODO: SSAO
+
+	vec3 color = vec3(0.01) * albedo * ao;
+
+	if(u_light.type == 0)
+	{
+		color += DoLightingCalculations(albedo, pos, normal, mask);
+	}
+	else
+	{
+		float theta = dot(CalculateSurfToLight(pos), normalize(-u_light.dir));
+		float epsilon   = u_light.cutOff - u_light.outerCutOff;
+		float intensity = clamp((theta - u_light.outerCutOff) / epsilon, 0.0, 1.0);
+
+		color += DoLightingCalculations(albedo, pos, normal, mask) * intensity;
+	}
+
+    color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2)); 
 
     out_color = vec4(color, 1.0);

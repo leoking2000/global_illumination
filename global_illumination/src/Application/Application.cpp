@@ -1,6 +1,6 @@
 #include "Application.h"
 #include "AssetManagement/AssetManagement.h"
-#include "SceneGraph/Nodes/GeometryNode.h"
+#include "SceneGraph/NodeBehavior.h"
 
 namespace GL
 {
@@ -17,12 +17,16 @@ namespace GL
 		scene.camera.pos = params.cam_pos;
 		scene.camera.dir = params.cam_dir;
 
-		LOGINFO("Application Created");
+		scene.light = Light(glm::vec3(0.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f), LightType::SPOTLIGHT);
 
 		//u32 main = GL::AssetManagement::LoadFromObjFile("\\level1\\level1.obj");
 		u32 main = GL::AssetManagement::LoadFromObjFile("\\factory\\factory.obj");
 
-		scene.AddChild(std::make_unique<GL::GeometryNode>(main));
+		GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
+
+		scene.AddChild(std::move(node));
+
+		LOGINFO("Application Created");
 	}
 
 	Application::~Application()

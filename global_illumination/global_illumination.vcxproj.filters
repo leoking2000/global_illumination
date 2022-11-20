@@ -105,10 +105,7 @@
     <ClCompile Include="src\SceneGraph\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SceneGraph\Nodes\GeometryNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SceneGraph\Nodes\Node.cpp">
+    <ClCompile Include="src\SceneGraph\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Voxelization\Box.cpp">
@@ -118,6 +115,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Voxelization\Voxelizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneGraph\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneGraph\NodeBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -239,10 +242,7 @@
     <ClInclude Include="src\SceneGraph\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SceneGraph\Nodes\Node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SceneGraph\Nodes\GeometryNode.h">
+    <ClInclude Include="src\SceneGraph\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Voxelization\Box.h">
@@ -252,6 +252,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Voxelization\Voxelizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SceneGraph\NodeBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,22 +1,60 @@
 ﻿  Application.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
               T=float
           ]
   GeometryDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
               T=float
           ]
   Renderer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
               T=float
           ]
+  ShadowMapDrawStrategy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
+  Light.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
+  Scene.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
   Voxelizer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
@@ -33,12 +71,22 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
               T=float
           ]
   VoxelizerDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [
               T=float
           ]
   main.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
           with
           [

@@ -1,32 +1,68 @@
 ﻿  AssetManagement.cpp
   MeshFactory.cpp
+  Box.cpp
   GeometryDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
   ShadowMapDrawStrategy.cpp
-  ObjLoader.cpp
   ShaderFactory.cpp
   TextureFactory.cpp
   FrameBuffer.cpp
-  IndexBuffer.cpp
   Mesh.cpp
   OpenGL.cpp
   Shader.cpp
   Texture.cpp
-  VertexArray.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Graphics\VertexArray.cpp(98,3): warning C4312: 'type cast': conversion from 'u32' to 'const void *' of greater size
-  VertexBuffer.cpp
+  VoxelizerDrawStratagy.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
   GeometryNode.cpp
   Node.cpp
   Scene.cpp
+  Voxelizer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.31.31103\include\memory(3417,56): warning C4244: 'argument': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.cpp(25): message : see reference to function template instantiation 'std::unique_ptr<GL::FrameBuffer,std::default_delete<GL::FrameBuffer>> std::make_unique<GL::FrameBuffer,T&,T&,int,GL::TextureFormat,0>(T &,T &,int &&,GL::TextureFormat &&)' being compiled
+          with
+          [
+              T=float
+          ]
   Window.cpp
   main.cpp
-  Compiling...
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
   Renderer.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Renderer\Renderer.cpp(170,61): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-  Camera.cpp
-  FileUtilities.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Compiling...
   Application.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
   Generating code
-  Compiler switch has changed, fall back to full compilation.
-  All 3274 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  594 of 3271 functions (18.2%) were compiled, the rest were copied from previous compilation.
+    82 functions were new in current compilation
+    164 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Release\global_illumination.exe

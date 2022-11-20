@@ -54,11 +54,8 @@ namespace GL
 
 		m_voxelizer.Voxelize(scene);
 
-
 		SHADOW_STRATEGY.ClearFrameBuffer();
-		glm::mat4 light_view = glm::lookAt(light.m_light_pos, light.m_light_pos + light.m_light_dir, glm::vec3(0.0f, 1.0f, 0.0f));
-		scene.Draw(SHADOW_STRATEGY, light.m_light_proj, light_view);
-
+		scene.Draw(SHADOW_STRATEGY, scene.light.LightProj(), scene.light.LightView());
 
 		glm::mat4 proj = glm::perspective(parameters.fov_angle,
 			(f32)parameters.window_width / (f32)parameters.window_height,
@@ -66,7 +63,7 @@ namespace GL
 		GEOMETRY_STRATEGY.ClearFrameBuffer();
 		scene.Draw(GEOMETRY_STRATEGY, proj, scene.camera.GetCameraView());
 
-		static bool renderPreviewSpheres = true;
+		static bool renderPreviewSpheres = false;
 		if (window.KeyIsPressAsButton(KEY_V))
 		{
 			renderPreviewSpheres = !renderPreviewSpheres;
@@ -77,9 +74,9 @@ namespace GL
 			m_voxelizer.DrawPreviewSpheres(GEOMETRY_STRATEGY.GetFrameBuffer(), proj * scene.camera.GetCameraView());
 		}
 		
-		ShadingPass(scene.camera);
+		ShadingPass(scene.camera, scene);
 		PostProcess();
-		DebugImGuiLight();
+		DebugImGui(scene);
 	}
 
 	void Renderer::UpdateWindowSize(u32 width, u32 height)
@@ -95,7 +92,7 @@ namespace GL
 
 	}
 
-	void Renderer::ShadingPass(const Camera& camera)
+	void Renderer::ShadingPass(const Camera& camera, Scene& scene)
 	{
 		m_shading_buffer.Bind();
 
@@ -122,14 +119,12 @@ namespace GL
 		shading_shader.SetUniform("u_camera_pos", camera.pos);
 		shading_shader.SetUniform("u_camera_dir", camera.dir);
 		
-		shading_shader.SetUniform("u_light_dir", light.m_light_dir);
+		scene.light.SetUniforms(shading_shader);
 
-		glm::mat4 light_view = glm::lookAt(light.m_light_pos, light.m_light_pos + light.m_light_dir, glm::vec3(0, 1, 0));
-		shading_shader.SetUniform("u_light_projection_view", light.m_light_proj * light_view);
+		shading_shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
 		SHADOW_STRATEGY.GetFrameBuffer().BindDepthTexture(6);
 		shading_shader.SetUniform("u_shadowMap", 6);
-		shading_shader.SetUniform("u_shadow_bias", light.m_shadow_bias);
 
 		shading_shader.Bind();
 
@@ -171,32 +166,9 @@ namespace GL
 		post_process_shader.UnBind();
 	}
 
-	void Renderer::DebugImGuiLight()
+	void Renderer::DebugImGui(Scene& scene)
 	{
-		ImGui::Begin("Light");
-
-		ImGui::DragFloat3("Pos", glm::value_ptr(light.m_light_pos));
-		ImGui::DragFloat3("Dir", glm::value_ptr(light.m_light_dir), 0.1f, -1.0f, 1.0f);
-		light.m_light_dir = glm::normalize(light.m_light_dir);
-		ImGui::InputFloat("bias", &light.m_shadow_bias, 0.0001f, 0.0005f, "%f");
-
-		ImGui::End();
-
-		Model& m = *AssetManagement::GetModel(model);
-
-		/*
-		ImGui::Begin("Model Material");
-
-		static int i = 0;
-
-		ImGui::SliderInt("Mesh: ", &i, 0, (int)m.m_materials.size() - 1);
-		ImGui::ColorEdit3("Color ", glm::value_ptr(m.m_materials[i].Albedo));
-		ImGui::SliderFloat("Roughness", &m.m_materials[i].Roughness, 0.0f, 1.0f);
-		ImGui::SliderFloat("Metallic", &m.m_materials[i].Metallic, 0.0f, 1.0f);
-		
-
-		ImGui::End();
-		*/
+		scene.light.ImGui();
 	}
 
 }

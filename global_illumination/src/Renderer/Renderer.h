@@ -22,8 +22,8 @@ namespace GL
 	class Renderer
 	{
 	public:
-		Light light;
-		u32 model;
+		//Light light;
+		//u32 model;
 
 		const Window& window;
 	public:
@@ -41,9 +41,9 @@ namespace GL
 	private:
 		void UpdateWindowSize(u32 width, u32 height);
 	private:
-		void ShadingPass(const Camera& camera);
+		void ShadingPass(const Camera& camera, Scene& scene);
 		void PostProcess();
-		void DebugImGuiLight();
+		void DebugImGui(Scene& scene);
 	private:
 		std::vector<std::unique_ptr<DrawStrategy>> m_strategies;
 		Voxelizer m_voxelizer;

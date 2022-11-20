@@ -14,11 +14,6 @@ uint getBit(uvec4 master, uint i)
 	return (master[i / 32u] >> i) & 1u;
 }
 
-void setToOne(uvec4 master, uint i)
-{
-	
-}
-
 void main()
 {
     // sample the voxels in the neighborhood of pos

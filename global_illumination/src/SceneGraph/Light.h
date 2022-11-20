@@ -1,14 +1,41 @@
 #pragma once
-#include "Global/Types.h"
+#include "Node.h"
+#include "DrawStrategy.h"
+#include <memory>
 
 namespace GL
 {
+	enum LightType
+	{
+		DIRECTIONAL = 0,
+		SPOTLIGHT = 1
+	};
+
 	class Light
 	{
 	public:
-		glm::mat4 m_light_proj = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.1f, 100.0f);
-		glm::vec3 m_light_pos = glm::vec3(0.0f, 12.0f, 24.0f);
-		glm::vec3 m_light_dir = glm::normalize(glm::vec3(0.0f, -0.369f, -0.929f));
+		Light();
+		Light(const glm::vec3 pos, const glm::vec3 dir, LightType type);
+	public:
+		void ImGui();
+
+		glm::mat4 LightProj();
+		glm::mat4 LightView();
+
+		void SetUniforms(ShaderProgram& shader);
+
+		void RenderShadowMap(DrawStrategy& statagy);
+	private:
+		glm::vec3 m_radiance = glm::vec3(1.0f);
+
+		glm::vec3 m_pos;
+		glm::vec3 m_dir;
+		LightType m_type;
+
+		f32 m_cutOffAngle = glm::radians(12.5f);
+		f32 m_outercutOffAngle = glm::radians(17.5);
+	private:
+		glm::mat4 m_light_proj;
 		f32 m_shadow_bias = 0.0006f;
 	};
 }
