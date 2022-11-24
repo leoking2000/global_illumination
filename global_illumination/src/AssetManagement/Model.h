@@ -1,6 +1,6 @@
 #pragma once
 #include "Global/Types.h"
-#include "Global/Material.h"
+#include "Factories/Material.h"
 #include <vector>
 
 namespace GL

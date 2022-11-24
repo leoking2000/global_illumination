@@ -10,6 +10,8 @@ namespace GL
 		FrameBuffer(u32 width, u32 height, u8 colorAttachmentCount, 
 			TextureFormat format = TextureFormat::RGBA32F, bool layered = false);
 		~FrameBuffer();
+
+		FrameBuffer(FrameBuffer&& other);
 	public:
 		void Bind() const;
 		void UnBind() const;

@@ -72,6 +72,19 @@ namespace GL
         glCall(glDeleteFramebuffers(1, &m_id));
     }
 
+    FrameBuffer::FrameBuffer(FrameBuffer&& other)
+        :
+        m_width(other.m_width),
+        m_height(other.m_height),
+        m_id(other.m_id),
+        m_depth_texture(std::move(other.m_depth_texture)),
+        m_color_attachments(std::move(other.m_color_attachments))
+    {
+        other.m_width = 0;
+        other.m_height = 0;
+        other.m_id = 0;
+    }
+
     void FrameBuffer::Bind() const
     {
         glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_id));

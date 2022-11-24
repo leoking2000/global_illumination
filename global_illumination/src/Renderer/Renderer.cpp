@@ -1,9 +1,13 @@
 #include "Graphics/OpenGL.h"
 #include "Renderer.h"
 
+#include "Global/Logger.h"
+
 #include "AssetManagement/AssetManagement.h"
 #include "Factories/ShaderFactory.h"
 #include "imgui/imgui.h"
+
+#include "Global_illumination/RSMGITechique.h"
 
 #include "ShadowMapDrawStrategy.h"
 #include "GeometryDrawStratagy.h"
@@ -28,11 +32,14 @@ namespace GL
 		AssetManagement::Clear();
 	}
 
-	void Renderer::Init()
+	void Renderer::Init(Scene& scene)
 	{	
 		// create Draw strategies
 		m_strategies.emplace_back(new ShadowMapDrawStrategy(2048));
 		m_strategies.emplace_back(new GeometryDrawStratagy(parameters.window_width, parameters.window_height));
+
+		// create technique
+		m_gi_technique = std::make_unique<RSMGLTechique>(2048, scene);
 
 		// shaders
 		m_shading_shader = AssetManagement::CreateShader("Lighting/shading_pass");
@@ -40,7 +47,11 @@ namespace GL
 
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 
+		// init staff
+		m_gi_technique->Init();
 		m_voxelizer.Init();
+
+		LOGINFO("Renderer Init");
 	}
 
 	void Renderer::Render(u32 width, u32 height, Scene& scene)
@@ -53,6 +64,8 @@ namespace GL
 		UpdateWindowSize(width, height);
 
 		m_voxelizer.Voxelize(scene);
+
+		m_gi_technique->Draw(scene, scene.light.LightProj(), scene.light.LightView());
 
 		SHADOW_STRATEGY.ClearFrameBuffer();
 		scene.Draw(SHADOW_STRATEGY, scene.light.LightProj(), scene.light.LightView());
@@ -141,9 +154,13 @@ namespace GL
 		glCall(glDisable(GL_DEPTH_TEST));
 
 		static bool b = true;
+		static int i = 0;
 
 		if (window.KeyIsPressAsButton(KEY_M))
 			b = !b;
+
+		if (window.KeyIsPressAsButton(KEY_N))
+			i = (i + 1) % m_gi_technique->GetFrameBuffer().NumberOfColorAttachments();
 
 		ShaderProgram& post_process_shader = *AssetManagement::GetShader(m_post_process_shader);
 
@@ -154,8 +171,9 @@ namespace GL
 		}
 		else 
 		{
-			post_process_shader.SetUniform("u_depth", 1);
-			SHADOW_STRATEGY.GetFrameBuffer().BindDepthTexture(10);
+			post_process_shader.SetUniform("u_depth", 0);
+			//SHADOW_STRATEGY.GetFrameBuffer().BindDepthTexture(10);
+			m_gi_technique->GetFrameBuffer().BindColorTexture(i, 10);
 		}
 
 		post_process_shader.SetUniform("uniform_texture", 10);

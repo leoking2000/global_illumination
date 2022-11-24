@@ -1,5 +1,5 @@
 #pragma once
-#include "Global/Material.h"
+#include "Material.h"
 #include <vector>
 
 namespace GL

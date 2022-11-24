@@ -36,9 +36,9 @@ namespace GL
 
 	void Application::Run()
 	{
-		LOGINFO("Application Run");
+		renderer.Init(scene);
 
-		renderer.Init();
+		LOGINFO("Application Run");
 
 		GameSetUp();
 

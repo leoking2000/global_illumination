@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
     <ClCompile Include="src\Factories\MeshFactory.cpp" />
+    <ClCompile Include="src\Global_illumination\RSMGITechique.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
     <ClCompile Include="src\SceneGraph\Light.cpp" />
     <ClCompile Include="src\Voxelization\Box.cpp" />
@@ -57,8 +58,11 @@
     <ClCompile Include="src\Application\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Global_illumination\GITechnique.h" />
     <ClInclude Include="src\AssetManagement\AssetManagement.h" />
     <ClInclude Include="src\Factories\MeshFactory.h" />
+    <ClInclude Include="src\Global\Timer.h" />
+    <ClInclude Include="src\Global_illumination\RSMGITechique.h" />
     <ClInclude Include="src\SceneGraph\NodeBehavior.h" />
     <ClInclude Include="src\Voxelization\Box.h" />
     <ClInclude Include="src\Renderer\GeometryDrawStratagy.h" />
@@ -94,12 +98,11 @@
     <ClInclude Include="src\Window\Keys.h" />
     <ClInclude Include="src\Global\Logger.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
-    <ClInclude Include="src\Global\Material.h" />
+    <ClInclude Include="src\Factories\Material.h" />
     <ClInclude Include="src\AssetManagement\Model.h" />
     <ClInclude Include="src\SceneGraph\Transform.h" />
     <ClInclude Include="src\Global\Types.h" />
     <ClInclude Include="src\Factories\FileUtilities.h" />
-    <ClInclude Include="src\Global\Timer.h" />
     <ClInclude Include="src\Application\Application.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

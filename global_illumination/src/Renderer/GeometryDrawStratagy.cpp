@@ -4,9 +4,18 @@
 
 namespace GL
 {
+	GeometryDrawStratagy::GeometryDrawStratagy(FrameBuffer&& buffer, u32 shader, std::function<void(ShaderProgram&)> setExtraUniforms)
+		:
+		m_geometry_buffer(std::move(buffer)),
+		m_geometry_shader(shader),
+		m_setExtraUniforms(setExtraUniforms)
+	{
+	}
+
 	GL::GeometryDrawStratagy::GeometryDrawStratagy(u32 width, u32 height)
 		:
-		m_geometry_buffer(width, height, 4)
+		m_geometry_buffer(width, height, 4),
+		m_setExtraUniforms([](ShaderProgram&) {})
 	{
 		static bool shader_created = false;
 		if (!shader_created) {
@@ -44,6 +53,8 @@ namespace GL
 		geometry_shader.SetUniform("u_proj_view_model_matrix", proj * view * model_matrix);
 		geometry_shader.SetUniform("u_normal_matrix", glm::transpose(glm::inverse(model_matrix)));
 
+		m_setExtraUniforms(geometry_shader);
+
 		for (u32 i = 0; i < model.m_meshs.size(); i++)
 		{
 			if (model.m_materials[i].AlbedoMap.empty())
@@ -72,7 +83,6 @@ namespace GL
 			geometry_shader.SetUniform("u_roughness", model.m_materials[i].Roughness);
 			geometry_shader.SetUniform("u_metallic", model.m_materials[i].Metallic);
 
-
 			geometry_shader.Bind();
 			AssetManagement::GetMesh(model.m_meshs[i])->Draw();
 		}
@@ -85,6 +95,11 @@ namespace GL
 	FrameBuffer& GL::GeometryDrawStratagy::GetFrameBuffer()
 	{
 		return m_geometry_buffer;
+	}
+
+	void GeometryDrawStratagy::SetExtraUniformsFunction(std::function<void(ShaderProgram&)> setExtraUniforms)
+	{
+		m_setExtraUniforms = setExtraUniforms;
 	}
 }
 

@@ -1,4 +1,6 @@
-﻿  Application.cpp
+﻿  AssetManagement.cpp
+  MeshFactory.cpp
+  RSMGITechique.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
           with
           [
@@ -9,18 +11,15 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
           [
               T=float
           ]
+  NodeBehavior.cpp
+  Light.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
+  Box.cpp
   GeometryDrawStratagy.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
-          with
-          [
-              genType=double
-          ]
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
-          with
-          [
-              T=float
-          ]
-  Renderer.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
           with
           [
@@ -37,12 +36,32 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
           [
               genType=double
           ]
-  Light.cpp
+  ObjLoader.cpp
+  ShaderFactory.cpp
+  TextureFactory.cpp
+  FrameBuffer.cpp
+  IndexBuffer.cpp
+  Mesh.cpp
+  OpenGL.cpp
+  Shader.cpp
+  Texture.cpp
+  VertexArray.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Graphics\VertexArray.cpp(98,3): warning C4312: 'type cast': conversion from 'u32' to 'const void *' of greater size
+  VertexBuffer.cpp
+  VoxelizerDrawStratagy.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
           with
           [
               genType=double
           ]
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Generating Code...
+  Compiling...
+  Node.cpp
   Scene.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
           with
@@ -70,17 +89,14 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
           [
               T=float
           ]
-  VoxelizerDrawStratagy.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
-          with
-          [
-              genType=double
-          ]
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
-          with
-          [
-              T=float
-          ]
+  Window.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
   main.cpp
 C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
           with
@@ -92,5 +108,31 @@ C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
           [
               T=float
           ]
+  Renderer.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Camera.cpp
+  FileUtilities.cpp
+  Application.cpp
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\SceneGraph\Light.h(36,40): warning C4244: 'initializing': conversion from 'genType' to 'f32', possible loss of data
+          with
+          [
+              genType=double
+          ]
+C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Voxelization\Voxelizer.h(34,50): warning C4244: '=': conversion from 'T' to 'u32', possible loss of data
+          with
+          [
+              T=float
+          ]
   Generating Code...
+  glad.c
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

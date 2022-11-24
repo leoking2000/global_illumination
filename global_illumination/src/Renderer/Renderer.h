@@ -1,4 +1,5 @@
 #pragma once
+#include "Global_illumination/GITechnique.h"
 #include "Voxelization/Voxelizer.h"
 #include "Graphics/VertexArray.h"
 
@@ -34,7 +35,7 @@ namespace GL
 
 		~Renderer();
 	public:
-		void Init();
+		void Init(Scene& scene);
 		void Render(u32 width, u32 height, Scene& scene);
 	public:
 		RendererParameters parameters;
@@ -53,6 +54,9 @@ namespace GL
 
 		u32 m_post_process_shader;
 		u32 m_screen_filled_quad;
+
+		// GI
+		std::unique_ptr<GITechnique> m_gi_technique;
 	};
 
 
