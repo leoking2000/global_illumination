@@ -20,16 +20,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
-    <ClCompile Include="src\Factories\MeshFactory.cpp" />
-    <ClCompile Include="src\Global_illumination\RSMGITechique.cpp" />
+    <ClCompile Include="src\AssetManagement\Factories\MeshFactory.cpp" />
+    <ClCompile Include="src\Renderer\Global_illumination\RSMGITechique.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
     <ClCompile Include="src\SceneGraph\Light.cpp" />
-    <ClCompile Include="src\Voxelization\Box.cpp" />
+    <ClCompile Include="src\Renderer\Voxelization\Box.cpp" />
     <ClCompile Include="src\Renderer\GeometryDrawStratagy.cpp" />
     <ClCompile Include="src\Renderer\ShadowMapDrawStrategy.cpp" />
-    <ClCompile Include="src\Factories\ObjLoader.cpp" />
-    <ClCompile Include="src\Factories\ShaderFactory.cpp" />
-    <ClCompile Include="src\Factories\TextureFactory.cpp" />
+    <ClCompile Include="src\AssetManagement\Factories\ObjLoader.cpp" />
+    <ClCompile Include="src\AssetManagement\Factories\ShaderFactory.cpp" />
+    <ClCompile Include="src\AssetManagement\Factories\TextureFactory.cpp" />
     <ClCompile Include="src\Graphics\FrameBuffer.cpp" />
     <ClCompile Include="src\Graphics\glad.c" />
     <ClCompile Include="src\Graphics\IndexBuffer.cpp" />
@@ -39,48 +39,48 @@
     <ClCompile Include="src\Graphics\Texture.cpp" />
     <ClCompile Include="src\Graphics\VertexArray.cpp" />
     <ClCompile Include="src\Graphics\VertexBuffer.cpp" />
-    <ClCompile Include="src\Voxelization\VoxelizerDrawStratagy.cpp" />
+    <ClCompile Include="src\Renderer\Voxelization\VoxelizerDrawStratagy.cpp" />
     <ClCompile Include="src\SceneGraph\Node.cpp" />
     <ClCompile Include="src\SceneGraph\Scene.cpp" />
-    <ClCompile Include="src\Voxelization\Voxelizer.cpp" />
+    <ClCompile Include="src\Renderer\Voxelization\Voxelizer.cpp" />
     <ClCompile Include="src\Window\Window.cpp" />
-    <ClCompile Include="src\imgui\imgui.cpp" />
-    <ClCompile Include="src\imgui\imgui_demo.cpp" />
-    <ClCompile Include="src\imgui\imgui_draw.cpp" />
-    <ClCompile Include="src\imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="src\imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="src\imgui\imgui_tables.cpp" />
-    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\SceneGraph\Camera.cpp" />
-    <ClCompile Include="src\Factories\FileUtilities.cpp" />
+    <ClCompile Include="src\AssetManagement\Factories\FileUtilities.cpp" />
     <ClCompile Include="src\Application\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Global_illumination\GITechnique.h" />
+    <ClInclude Include="src\Renderer\Global_illumination\GITechnique.h" />
     <ClInclude Include="src\AssetManagement\AssetManagement.h" />
-    <ClInclude Include="src\Factories\MeshFactory.h" />
+    <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
     <ClInclude Include="src\Global\Timer.h" />
-    <ClInclude Include="src\Global_illumination\RSMGITechique.h" />
+    <ClInclude Include="src\Renderer\Global_illumination\RSMGITechique.h" />
     <ClInclude Include="src\SceneGraph\NodeBehavior.h" />
-    <ClInclude Include="src\Voxelization\Box.h" />
+    <ClInclude Include="src\Renderer\Voxelization\Box.h" />
     <ClInclude Include="src\Renderer\GeometryDrawStratagy.h" />
-    <ClInclude Include="src\Voxelization\VoxelizerDrawStratagy.h" />
+    <ClInclude Include="src\Renderer\Voxelization\VoxelizerDrawStratagy.h" />
     <ClInclude Include="src\SceneGraph\DrawStrategy.h" />
     <ClInclude Include="src\Renderer\ShadowMapDrawStrategy.h" />
     <ClInclude Include="src\SceneGraph\Light.h" />
-    <ClInclude Include="src\Factories\ObjLoader.h" />
-    <ClInclude Include="src\Factories\ShaderFactory.h" />
-    <ClInclude Include="src\Factories\TextureFactory.h" />
-    <ClInclude Include="src\imgui\imconfig.h" />
-    <ClInclude Include="src\imgui\imgui.h" />
-    <ClInclude Include="src\imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="src\imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="src\imgui\imgui_internal.h" />
-    <ClInclude Include="src\imgui\imstb_rectpack.h" />
-    <ClInclude Include="src\imgui\imstb_textedit.h" />
-    <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\AssetManagement\Factories\ObjLoader.h" />
+    <ClInclude Include="src\AssetManagement\Factories\ShaderFactory.h" />
+    <ClInclude Include="src\AssetManagement\Factories\TextureFactory.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="src\SceneGraph\Camera.h" />
     <ClInclude Include="src\Graphics\FrameBuffer.h" />
     <ClInclude Include="src\Graphics\IndexBuffer.h" />
@@ -93,16 +93,16 @@
     <ClInclude Include="src\Graphics\VertexBuffer.h" />
     <ClInclude Include="src\SceneGraph\Node.h" />
     <ClInclude Include="src\SceneGraph\Scene.h" />
-    <ClInclude Include="src\Voxelization\Voxelizer.h" />
+    <ClInclude Include="src\Renderer\Voxelization\Voxelizer.h" />
     <ClInclude Include="src\Window\Window.h" />
     <ClInclude Include="src\Window\Keys.h" />
     <ClInclude Include="src\Global\Logger.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
-    <ClInclude Include="src\Factories\Material.h" />
+    <ClInclude Include="src\AssetManagement\Factories\Material.h" />
     <ClInclude Include="src\AssetManagement\Model.h" />
     <ClInclude Include="src\SceneGraph\Transform.h" />
     <ClInclude Include="src\Global\Types.h" />
-    <ClInclude Include="src\Factories\FileUtilities.h" />
+    <ClInclude Include="src\AssetManagement\Factories\FileUtilities.h" />
     <ClInclude Include="src\Application\Application.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -214,7 +214,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -231,7 +231,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

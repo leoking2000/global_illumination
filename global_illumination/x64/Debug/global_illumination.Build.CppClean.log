@@ -1,6 +1,5 @@
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\vc143.pdb
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\vc143.idb
-c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\node.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\voxelizerdrawstratagy.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\vertexbuffer.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\vertexarray.obj
@@ -18,6 +17,7 @@ c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\box.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\light.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\nodebehavior.obj
+c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\rsmgitechique.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\meshfactory.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\assetmanagement.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\application.obj
@@ -35,10 +35,10 @@ c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\window.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\voxelizer.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\scene.obj
+c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\node.obj
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\glad.obj
-c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\gitechnique.obj
-c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\debug\global_illumination.exe
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\global_illumination.ilk
+c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\debug\global_illumination.exe
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\debug\global_illumination.pdb
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\global_i.4145b4e0.tlog\cl.command.1.tlog
 c:\users\user\desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\x64\debug\global_i.4145b4e0.tlog\cl.read.1.tlog

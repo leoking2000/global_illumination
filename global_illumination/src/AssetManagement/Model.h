@@ -15,6 +15,11 @@ namespace GL
 		{
 
 		}
+		Model(u32 mesh, Material mat)
+		{
+			m_meshs.push_back(mesh);
+			m_materials.push_back(mat);
+		}
 
 	public:
 		std::vector<u32> m_meshs; // stores ids the asset manager gives.

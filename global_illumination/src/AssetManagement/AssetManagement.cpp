@@ -110,6 +110,13 @@ namespace GL
 		return (u32)Get().m_models.size() - 1;
 	}
 
+	u32 AssetManagement::CreateModel(u32 mesh, Material mat)
+	{
+		Get().m_models.emplace_back(mesh, mat);
+
+		return (u32)Get().m_models.size() - 1;
+	}
+
 	u32 AssetManagement::LoadFromObjFile(const std::string& file_path)
 	{
 		std::vector<u32> meshs;
@@ -124,6 +131,12 @@ namespace GL
 
 			if (!m.material.NormalMap.empty())
 				AssetManagement::CreateTexture2D(m.material.NormalMap);
+
+			if (!m.material.RoughnessMap.empty())
+				AssetManagement::CreateTexture2D(m.material.RoughnessMap);
+
+			if (!m.material.MetallicMap.empty())
+				AssetManagement::CreateTexture2D(m.material.MetallicMap);
 
 			material.emplace_back(m.material);
 		}

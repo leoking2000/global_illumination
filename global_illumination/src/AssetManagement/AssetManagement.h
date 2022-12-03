@@ -36,6 +36,7 @@ namespace GL
 		static Mesh* GetMesh(u32 id);
 
 		static u32 CreateModel(u32 mesh);
+		static u32 CreateModel(u32 mesh, Material mat);
 		static u32 LoadFromObjFile(const std::string& file_path); // returns a Model id
 		static Model* GetModel(u32 id);
 

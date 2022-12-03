@@ -4,7 +4,6 @@
 #include "Global/Logger.h"
 
 #include "AssetManagement/AssetManagement.h"
-#include "Factories/ShaderFactory.h"
 #include "imgui/imgui.h"
 
 #include "Global_illumination/RSMGITechique.h"
