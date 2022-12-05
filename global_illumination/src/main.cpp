@@ -72,14 +72,6 @@ public:
 
     void GameUpdate(f32 dt) override
     {
-        ImGui::Begin("Camera");
-
-        ImGui::Text("Position  | X: %f | Y: %f | Z: %f", scene.camera.pos.x, scene.camera.pos.y, scene.camera.pos.z);
-        ImGui::Text("Direction | X: %f | Y: %f | Z: %f", scene.camera.dir.x, scene.camera.dir.y, scene.camera.dir.z);
-
-        ImGui::End();
-
-
         if (window.KeyIsPressAsButton(KEY_F))
         {
             LOGDEBUG("Delta Time: %f", dt);

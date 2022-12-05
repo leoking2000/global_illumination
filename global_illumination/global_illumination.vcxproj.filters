@@ -96,10 +96,10 @@
     <ClCompile Include="imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\ShadowMapDrawStrategy.cpp">
+    <ClCompile Include="src\Renderer\DrawStratagies\ShadowMapDrawStrategy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\GeometryDrawStratagy.cpp">
+    <ClCompile Include="src\Renderer\DrawStratagies\GeometryDrawStratagy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SceneGraph\Scene.cpp">
@@ -123,7 +123,7 @@
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Global_illumination\RSMGITechique.cpp">
+    <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -230,13 +230,13 @@
     <ClInclude Include="src\SceneGraph\DrawStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\ShadowMapDrawStrategy.h">
+    <ClInclude Include="src\Renderer\DrawStratagies\ShadowMapDrawStrategy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SceneGraph\Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\GeometryDrawStratagy.h">
+    <ClInclude Include="src\Renderer\DrawStratagies\GeometryDrawStratagy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SceneGraph\Scene.h">
@@ -260,10 +260,7 @@
     <ClInclude Include="src\Global\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Global_illumination\GITechnique.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Renderer\Global_illumination\RSMGITechique.h">
+    <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

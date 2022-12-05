@@ -22,22 +22,36 @@ namespace GL
 		}
 		else
 		{
-			m_light_proj = glm::perspective<f32>(PI / 2, 1, 0.1f, 1000.0f);
+			m_light_proj = glm::perspective<f32>(PI / 2.0f, 1, 0.1f, 1000.0f);
 			m_radiance = glm::vec3(9.0f);
 		}
 	}
 
 	void Light::ImGui()
 	{
-		ImGui::Begin("Light");
+		if (ImGui::CollapsingHeader("Light", true))
+		{
+			ImGui::DragFloat3("Pos", glm::value_ptr(m_pos));
+			ImGui::DragFloat3("Dir", glm::value_ptr(m_dir), 0.1f, -1.0f, 1.0f);
+			m_dir = glm::normalize(m_dir);
+			ImGui::InputFloat("bias", &m_shadow_bias, 0.0001f, 0.0005f, "%f");
+			ImGui::DragFloat3("radiance", glm::value_ptr(m_radiance));
+			ImGui::DragFloat("Cut Off Angle (in radians)", &m_cutOffAngle, 0.01f, 0.0f, PI / 2);
 
-		ImGui::DragFloat3("Pos", glm::value_ptr(m_pos));
-		ImGui::DragFloat3("Dir", glm::value_ptr(m_dir), 0.1f, -1.0f, 1.0f);
-		m_dir = glm::normalize(m_dir);
-		ImGui::InputFloat("bias", &m_shadow_bias, 0.0001f, 0.0005f, "%f");
-		ImGui::DragFloat3("radiance", glm::value_ptr(m_radiance));
+			f32 old_angle = m_outercutOffAngle;
+			ImGui::DragFloat("Outer Cut Off Angle (in radians)", &m_outercutOffAngle, 0.01f, 0.0f, PI / 2);
 
-		ImGui::End();
+			if (m_type == LightType::DIRECTIONAL)
+			{
+				m_light_proj = glm::ortho(-15.0f, 15.0f, -15.0f, 15.0f, 0.1f, 100.0f);
+				m_radiance = glm::vec3(1.0f);
+			}
+			else if (old_angle != m_outercutOffAngle)
+			{
+				m_light_proj = glm::perspective<f32>(PI / 2.0f, 1, 0.1f, 1000.0f);
+				m_radiance = glm::vec3(9.0f);
+			}
+		}
 	}
 
 	glm::mat4 Light::LightProj()

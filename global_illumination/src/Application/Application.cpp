@@ -8,10 +8,10 @@ namespace GL
 	Application::Application(const ApplicationParameters& params)
 		:
 		window(params.windows_params),
-		renderer(params.windows_params.width, params.windows_params.height, window)
+		renderer({ params.windows_params.width, params.windows_params.height, 
+			params.background_color, 
+			glm::radians(45.0f), 0.1f, 100.0f })
 	{
-		renderer.parameters.background_color = params.background_color;
-
 		AssetManagement::SetAssetDir(params.asset_dir);
 
 		scene.camera.pos = params.cam_pos;
@@ -41,6 +41,7 @@ namespace GL
 			scene.Update(dt);
 
 			renderer.Render((u32)win_size.x, (u32)win_size.y, scene);
+			renderer.DebugImGui(scene, dt);
 		});
 	}
 

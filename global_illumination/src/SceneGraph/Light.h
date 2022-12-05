@@ -23,8 +23,6 @@ namespace GL
 		glm::mat4 LightView();
 
 		void SetUniforms(ShaderProgram& shader);
-
-		void RenderShadowMap(DrawStrategy& statagy);
 	private:
 		glm::vec3 m_radiance = glm::vec3(1.0f);
 
@@ -33,7 +31,7 @@ namespace GL
 		LightType m_type;
 
 		f32 m_cutOffAngle = glm::radians(12.5f);
-		f32 m_outercutOffAngle = glm::radians(17.5);
+		f32 m_outercutOffAngle = glm::radians(17.5f);
 	private:
 		glm::mat4 m_light_proj;
 		f32 m_shadow_bias = 0.0006f;

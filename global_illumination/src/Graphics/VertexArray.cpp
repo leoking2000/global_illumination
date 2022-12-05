@@ -95,7 +95,7 @@ namespace GL
 		}
 
 		glCall(glEnableVertexAttribArray(i));
-		glCall(glVertexAttribPointer(i, count, type, normalize, stride, (const void*)offset));
+		glCall(glVertexAttribPointer(i, count, type, normalize, stride, (const void*)((u64)offset)));
 
 		offset += count * size;
 	}

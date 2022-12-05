@@ -7,16 +7,16 @@ namespace GL
 	struct VoxelizerParameters
 	{
 		//Box voxelizationArea = Box(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(22.0f, 12.0f, 15.0f));
-		Box voxelizationArea = Box(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(22.0f));
-		const u32 resolution = 128;
+		//Box voxelizationArea = Box(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(22.0f));
+		glm::vec3 center;
+		f32 size;
 	};
 
 	struct VoxelizerData
 	{
-		VoxelizerData(const Box& box, u32 r) 
+		VoxelizerData(const glm::vec3 center, f32 size) 
 			: 
-			voxelizationArea(box), 
-			resolution(r) 
+			voxelizationArea(center, glm::vec3(size))
 		{
 			glm::vec3 boxSize = voxelizationArea.GetSize();
 			// the voxel resolution is set to be the resolution of the box's max side
@@ -31,11 +31,11 @@ namespace GL
 
 			glm::vec3 voxel_side = boxSize / glm::vec3(dimensions);
 			voxel_size = voxel_side.x;
-			voxel_grid_size = dimensions.x * dimensions.y * dimensions.z;
+			voxel_grid_size = u32(dimensions.x * dimensions.y * dimensions.z);
 		}
 
+		static constexpr u32 resolution = 128;
 		Box voxelizationArea;
-		u32 resolution;
 
 		glm::vec3 dimensions;
 		f32 voxel_size;
@@ -73,7 +73,5 @@ namespace GL
 
 		u32 m_cube;
 		u32 m_screen_filled_quad;
-	private:
-		//std::unique_ptr<Texture> _voxels;
 	};
 }

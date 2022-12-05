@@ -9,7 +9,7 @@ namespace GL
 {
 	Voxelizer::Voxelizer(const VoxelizerParameters& params)
 		:
-		m_data(params.voxelizationArea, params.resolution)
+		m_data(params.center, params.size)
 	{
 
 	}
@@ -21,13 +21,13 @@ namespace GL
 
 		// Create merge Framebuffer and shader //
 		m_merge_voxels = std::make_unique<FrameBuffer>(
-			m_data.dimensions.x, m_data.dimensions.y, 1,
+			(u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
 			TextureFormat::RGBA32UI);
 		m_mergeShader = AssetManagement::CreateShader("Voxelization\\ThreeWayBinaryMerge");
 
 		// Create dilation Framebuffer and shader //
 		m_voxels_dilated = std::make_unique<FrameBuffer>(
-			m_data.dimensions.x, m_data.dimensions.y, 1,
+			(u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
 			TextureFormat::RGBA32UI);
 		m_dilationShader = AssetManagement::CreateShader("Voxelization\\DilateVoxelSpace");
 

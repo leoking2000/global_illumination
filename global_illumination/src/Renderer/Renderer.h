@@ -1,9 +1,5 @@
 #pragma once
-#include "Global_illumination/GITechnique.h"
-#include "Voxelization/Voxelizer.h"
-#include "Graphics/VertexArray.h"
-
-#include "Window/Window.h"
+#include "SceneGraph/Scene.h"
 
 namespace GL
 {
@@ -23,12 +19,7 @@ namespace GL
 	class Renderer
 	{
 	public:
-		//Light light;
-		//u32 model;
-
-		const Window& window;
-	public:
-		Renderer(u32 width, u32 height, const Window& window);
+		Renderer(const RendererParameters& params);
 
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
@@ -37,26 +28,22 @@ namespace GL
 	public:
 		void Init(Scene& scene);
 		void Render(u32 width, u32 height, Scene& scene);
-	public:
-		RendererParameters parameters;
+		void DebugImGui(Scene& scene, f32 dt);
 	private:
 		void UpdateWindowSize(u32 width, u32 height);
-	private:
+
 		void ShadingPass(const Camera& camera, Scene& scene);
 		void PostProcess();
-		void DebugImGui(Scene& scene);
 	private:
-		std::vector<std::unique_ptr<DrawStrategy>> m_strategies;
-		Voxelizer m_voxelizer;
+		RendererParameters m_parameters;
+		std::unique_ptr<DrawStrategy> m_shadow_stratagy;
+		std::unique_ptr<DrawStrategy> m_geometry_stratagy;
 
 		u32 m_shading_shader;
 		FrameBuffer m_shading_buffer;
 
 		u32 m_post_process_shader;
 		u32 m_screen_filled_quad;
-
-		// GI
-		std::unique_ptr<GITechnique> m_gi_technique;
 	};
 
 

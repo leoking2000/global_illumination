@@ -6,24 +6,17 @@
 #include "AssetManagement/AssetManagement.h"
 #include "imgui/imgui.h"
 
-#include "Global_illumination/RSMGITechique.h"
-
-#include "ShadowMapDrawStrategy.h"
-#include "GeometryDrawStratagy.h"
-
-#define SHADOW_STRATEGY (*m_strategies[0])
-#define GEOMETRY_STRATEGY (*m_strategies[1])
+#include "DrawStratagies/ShadowMapDrawStrategy.h"
+#include "DrawStratagies/GeometryDrawStratagy.h"
 
 namespace GL
 {
-	Renderer::Renderer(u32 width, u32 height, const Window& window)
+	Renderer::Renderer(const RendererParameters& params)
 		:
-		m_shading_buffer(width, height, 1),
-		window(window),
-		m_voxelizer({})
+		m_parameters(params),
+		m_shading_buffer(params.window_width, params.window_height, 1)
 	{
-		parameters.window_width = width;
-		parameters.window_height = height;
+
 	}
 
 	Renderer::~Renderer()
@@ -34,11 +27,8 @@ namespace GL
 	void Renderer::Init(Scene& scene)
 	{	
 		// create Draw strategies
-		m_strategies.emplace_back(new ShadowMapDrawStrategy(2048));
-		m_strategies.emplace_back(new GeometryDrawStratagy(parameters.window_width, parameters.window_height));
-
-		// create technique
-		m_gi_technique = std::make_unique<RSMGLTechique>(2048, scene);
+		m_shadow_stratagy = std::unique_ptr<DrawStrategy>(new ShadowMapDrawStrategy(2048));
+		m_geometry_stratagy = std::unique_ptr<DrawStrategy>(new GeometryDrawStratagy(m_parameters.window_width, m_parameters.window_height));
 
 		// shaders
 		m_shading_shader = AssetManagement::CreateShader("Lighting/shading_pass");
@@ -46,59 +36,35 @@ namespace GL
 
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 
-		// init staff
-		m_gi_technique->Init();
-		m_voxelizer.Init();
-
 		LOGINFO("Renderer Init");
 	}
 
 	void Renderer::Render(u32 width, u32 height, Scene& scene)
 	{
-		if (window.KeyIsPressAsButton(KEY_F12))
-		{
-			AssetManagement::ReloadShaders();
-		}
-
 		UpdateWindowSize(width, height);
 
-		m_voxelizer.Voxelize(scene);
+		m_shadow_stratagy->ClearFrameBuffer();
+		scene.Draw(*m_shadow_stratagy, scene.light.LightProj(), scene.light.LightView());
 
-		m_gi_technique->Draw(scene, scene.light.LightProj(), scene.light.LightView());
+		glm::mat4 proj = glm::perspective(m_parameters.fov_angle,
+			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
+			m_parameters.min_z, m_parameters.max_z);
 
-		SHADOW_STRATEGY.ClearFrameBuffer();
-		scene.Draw(SHADOW_STRATEGY, scene.light.LightProj(), scene.light.LightView());
-
-		glm::mat4 proj = glm::perspective(parameters.fov_angle,
-			(f32)parameters.window_width / (f32)parameters.window_height,
-			parameters.min_z, parameters.max_z);
-		GEOMETRY_STRATEGY.ClearFrameBuffer();
-		scene.Draw(GEOMETRY_STRATEGY, proj, scene.camera.GetCameraView());
-
-		static bool renderPreviewSpheres = false;
-		if (window.KeyIsPressAsButton(KEY_V))
-		{
-			renderPreviewSpheres = !renderPreviewSpheres;
-		}
-		
-		if (renderPreviewSpheres)
-		{
-			m_voxelizer.DrawPreviewSpheres(GEOMETRY_STRATEGY.GetFrameBuffer(), proj * scene.camera.GetCameraView());
-		}
-		
+		m_geometry_stratagy->ClearFrameBuffer();
+		scene.Draw(*m_geometry_stratagy, proj, scene.camera.GetCameraView());
+	
 		ShadingPass(scene.camera, scene);
 		PostProcess();
-		DebugImGui(scene);
 	}
 
 	void Renderer::UpdateWindowSize(u32 width, u32 height)
 	{
-		if (width != parameters.window_width || height != parameters.window_height)
+		if (width != m_parameters.window_width || height != m_parameters.window_height)
 		{
-			parameters.window_width = width;
-			parameters.window_height = height;
+			m_parameters.window_width = width;
+			m_parameters.window_height = height;
 
-			GEOMETRY_STRATEGY.GetFrameBuffer().Resize(width, height);
+			m_geometry_stratagy->GetFrameBuffer().Resize(width, height);
 			m_shading_buffer.Resize(width, height);
 		}
 
@@ -109,16 +75,16 @@ namespace GL
 		m_shading_buffer.Bind();
 
 		glCall(glViewport(0, 0, m_shading_buffer.Width(), m_shading_buffer.Height()));
-		glCall(glClearColor(parameters.background_color.r, parameters.background_color.g, parameters.background_color.b, 1));
+		glCall(glClearColor(m_parameters.background_color.r, m_parameters.background_color.g, m_parameters.background_color.b, 1));
 		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		glCall(glDisable(GL_DEPTH_TEST));
 
-		GEOMETRY_STRATEGY.GetFrameBuffer().BindColorTexture(0, 0);
-		GEOMETRY_STRATEGY.GetFrameBuffer().BindColorTexture(1, 1);
-		GEOMETRY_STRATEGY.GetFrameBuffer().BindColorTexture(2, 2);
-		GEOMETRY_STRATEGY.GetFrameBuffer().BindColorTexture(3, 3);
-		GEOMETRY_STRATEGY.GetFrameBuffer().BindDepthTexture(5);
+		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(0, 0);
+		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(1, 1);
+		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(2, 2);
+		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(3, 3);
+		m_geometry_stratagy->GetFrameBuffer().BindDepthTexture(5);
 
 		ShaderProgram& shading_shader = *AssetManagement::GetShader(m_shading_shader);
 
@@ -135,7 +101,7 @@ namespace GL
 
 		shading_shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
-		SHADOW_STRATEGY.GetFrameBuffer().BindDepthTexture(6);
+		m_shadow_stratagy->GetFrameBuffer().BindDepthTexture(6);
 		shading_shader.SetUniform("u_shadowMap", 6);
 
 		shading_shader.Bind();
@@ -148,32 +114,14 @@ namespace GL
 
 	void Renderer::PostProcess()
 	{
-		glCall(glViewport(0, 0, parameters.window_width, parameters.window_height));
+		glCall(glViewport(0, 0, m_parameters.window_width, m_parameters.window_height));
 		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		glCall(glDisable(GL_DEPTH_TEST));
 
-		static bool b = true;
-		static int i = 0;
-
-		if (window.KeyIsPressAsButton(KEY_M))
-			b = !b;
-
-		if (window.KeyIsPressAsButton(KEY_N))
-			i = (i + 1) % m_gi_technique->GetFrameBuffer().NumberOfColorAttachments();
-
 		ShaderProgram& post_process_shader = *AssetManagement::GetShader(m_post_process_shader);
 
-		if (b)
-		{
-			post_process_shader.SetUniform("u_depth", 0);
-			m_shading_buffer.BindColorTexture(0, 10);
-		}
-		else 
-		{
-			post_process_shader.SetUniform("u_depth", 0);
-			//SHADOW_STRATEGY.GetFrameBuffer().BindDepthTexture(10);
-			m_gi_technique->GetFrameBuffer().BindColorTexture(i, 10);
-		}
+		post_process_shader.SetUniform("u_depth", 0);
+		m_shading_buffer.BindColorTexture(0, 10);
 
 		post_process_shader.SetUniform("uniform_texture", 10);
 		post_process_shader.Bind();
@@ -183,9 +131,27 @@ namespace GL
 		post_process_shader.UnBind();
 	}
 
-	void Renderer::DebugImGui(Scene& scene)
+	void Renderer::DebugImGui(Scene& scene, f32 dt)
 	{
+		ImGui::Begin("Renderer");
+
+		ImGui::Text("Camera Position  | X: %f | Y: %f | Z: %f", scene.camera.pos.x, scene.camera.pos.y, scene.camera.pos.z);
+		ImGui::Text("Camera Direction | X: %f | Y: %f | Z: %f", scene.camera.dir.x, scene.camera.dir.y, scene.camera.dir.z);
+
+		if (ImGui::CollapsingHeader("Renderer Parameters"))
+		{
+			ImGui::Text("Window Width: %i", m_parameters.window_width);
+			ImGui::Text("Window Height: %i", m_parameters.window_height);
+			ImGui::ColorPicker3("Background Color", glm::value_ptr(m_parameters.background_color));
+			ImGui::DragFloat("FOV angle (in radians)", &m_parameters.fov_angle, 0.01f, 0.0f, 2 * PI);
+			ImGui::InputFloat("Min Z", &m_parameters.min_z);
+			ImGui::InputFloat("Max Z", &m_parameters.max_z);
+		}
+
 		scene.light.ImGui();
+
+		ImGui::End();
+
 	}
 
 }

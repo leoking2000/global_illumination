@@ -21,12 +21,12 @@
   <ItemGroup>
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\MeshFactory.cpp" />
-    <ClCompile Include="src\Renderer\Global_illumination\RSMGITechique.cpp" />
+    <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
     <ClCompile Include="src\SceneGraph\Light.cpp" />
     <ClCompile Include="src\Renderer\Voxelization\Box.cpp" />
-    <ClCompile Include="src\Renderer\GeometryDrawStratagy.cpp" />
-    <ClCompile Include="src\Renderer\ShadowMapDrawStrategy.cpp" />
+    <ClCompile Include="src\Renderer\DrawStratagies\GeometryDrawStratagy.cpp" />
+    <ClCompile Include="src\Renderer\DrawStratagies\ShadowMapDrawStrategy.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\ObjLoader.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\ShaderFactory.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\TextureFactory.cpp" />
@@ -58,17 +58,16 @@
     <ClCompile Include="src\Application\Application.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Renderer\Global_illumination\GITechnique.h" />
     <ClInclude Include="src\AssetManagement\AssetManagement.h" />
     <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
     <ClInclude Include="src\Global\Timer.h" />
-    <ClInclude Include="src\Renderer\Global_illumination\RSMGITechique.h" />
+    <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h" />
     <ClInclude Include="src\SceneGraph\NodeBehavior.h" />
     <ClInclude Include="src\Renderer\Voxelization\Box.h" />
-    <ClInclude Include="src\Renderer\GeometryDrawStratagy.h" />
+    <ClInclude Include="src\Renderer\DrawStratagies\GeometryDrawStratagy.h" />
     <ClInclude Include="src\Renderer\Voxelization\VoxelizerDrawStratagy.h" />
     <ClInclude Include="src\SceneGraph\DrawStrategy.h" />
-    <ClInclude Include="src\Renderer\ShadowMapDrawStrategy.h" />
+    <ClInclude Include="src\Renderer\DrawStratagies\ShadowMapDrawStrategy.h" />
     <ClInclude Include="src\SceneGraph\Light.h" />
     <ClInclude Include="src\AssetManagement\Factories\ObjLoader.h" />
     <ClInclude Include="src\AssetManagement\Factories\ShaderFactory.h" />
