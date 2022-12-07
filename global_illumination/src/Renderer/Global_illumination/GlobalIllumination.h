@@ -5,16 +5,23 @@ namespace GL
 {
 	struct GlobalIlluminationParameters
 	{
-
+		VoxelizerParameters voxelizer_params;
+		const u32 rsm_resoulution = 1024;
+		u32 bounces = 1;
 	};
 
 	class GlobalIllumination
 	{
 	public:
-		//GlobalIllumination();
+		GlobalIllumination(const GlobalIlluminationParameters& params);
+		void Init(Scene& scene);
+		void Draw(Scene& scene);
 
-		//void Draw(Scene& scene);
+		const Voxelizer& GetVoxelizer() const;
+		const FrameBuffer& GetRSMBuffer() const;
 	private:
-		//Voxelizer m_voxelizer;
+		GlobalIlluminationParameters m_params;
+		Voxelizer m_voxelizer;
+		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
 	};
 }

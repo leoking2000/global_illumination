@@ -14,7 +14,8 @@ namespace GL
 	Renderer::Renderer(const RendererParameters& params)
 		:
 		m_parameters(params),
-		m_shading_buffer(params.window_width, params.window_height, 1)
+		m_shading_buffer(params.window_width, params.window_height, 1),
+		m_global_illumination(params.gi_params)
 	{
 
 	}
@@ -27,7 +28,6 @@ namespace GL
 	void Renderer::Init(Scene& scene)
 	{	
 		// create Draw strategies
-		m_shadow_stratagy = std::unique_ptr<DrawStrategy>(new ShadowMapDrawStrategy(2048));
 		m_geometry_stratagy = std::unique_ptr<DrawStrategy>(new GeometryDrawStratagy(m_parameters.window_width, m_parameters.window_height));
 
 		// shaders
@@ -36,6 +36,8 @@ namespace GL
 
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 
+		m_global_illumination.Init(scene);
+
 		LOGINFO("Renderer Init");
 	}
 
@@ -43,8 +45,7 @@ namespace GL
 	{
 		UpdateWindowSize(width, height);
 
-		m_shadow_stratagy->ClearFrameBuffer();
-		scene.Draw(*m_shadow_stratagy, scene.light.LightProj(), scene.light.LightView());
+		m_global_illumination.Draw(scene);
 
 		glm::mat4 proj = glm::perspective(m_parameters.fov_angle,
 			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
@@ -52,6 +53,12 @@ namespace GL
 
 		m_geometry_stratagy->ClearFrameBuffer();
 		scene.Draw(*m_geometry_stratagy, proj, scene.camera.GetCameraView());
+
+		if (m_show_voxels)
+		{
+			m_global_illumination.GetVoxelizer().DrawPreviewSpheres(m_geometry_stratagy->GetFrameBuffer(), 
+				proj * scene.camera.GetCameraView());
+		}
 	
 		ShadingPass(scene.camera, scene);
 		PostProcess();
@@ -101,7 +108,7 @@ namespace GL
 
 		shading_shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
-		m_shadow_stratagy->GetFrameBuffer().BindDepthTexture(6);
+		m_global_illumination.GetRSMBuffer().BindDepthTexture(6);
 		shading_shader.SetUniform("u_shadowMap", 6);
 
 		shading_shader.Bind();
@@ -120,8 +127,59 @@ namespace GL
 
 		ShaderProgram& post_process_shader = *AssetManagement::GetShader(m_post_process_shader);
 
-		post_process_shader.SetUniform("u_depth", 0);
-		m_shading_buffer.BindColorTexture(0, 10);
+		switch (m_active_preview)
+		{
+		case FINAL_OUTPUT:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_shading_buffer.BindColorTexture(0, 10);
+			break;
+
+
+		case SHADOW_MAP_DEPTH:
+			post_process_shader.SetUniform("u_depth", 1);
+			m_global_illumination.GetRSMBuffer().BindDepthTexture(10);
+			break;
+		case SHADOW_MAP_FLUX:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_global_illumination.GetRSMBuffer().BindColorTexture(0, 10);
+			break;
+		case SHADOW_MAP_POSITION:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_global_illumination.GetRSMBuffer().BindColorTexture(1, 10);
+			break;
+		case SHADOW_MAP_NORMAL:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_global_illumination.GetRSMBuffer().BindColorTexture(2, 10);
+			break;
+
+
+		case GEOMETRY_BUFFER_DEPTH:
+			post_process_shader.SetUniform("u_depth", 1);
+			m_geometry_stratagy->GetFrameBuffer().BindDepthTexture(10);
+			break;
+		case GEOMETRY_BUFFER_ALBEDO:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_geometry_stratagy->GetFrameBuffer().BindColorTexture(0, 10);
+			break;
+		case GEOMETRY_BUFFER_POSITION:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_geometry_stratagy->GetFrameBuffer().BindColorTexture(1, 10);
+			break;
+		case GEOMETRY_BUFFER_NORMAL:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_geometry_stratagy->GetFrameBuffer().BindColorTexture(2, 10);
+			break;
+		case GEOMETRY_BUFFER_MASK:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_geometry_stratagy->GetFrameBuffer().BindColorTexture(3, 10);
+			break;
+
+
+		default:
+			post_process_shader.SetUniform("u_depth", 0);
+			m_shading_buffer.BindColorTexture(0, 10);
+			break;
+		}
 
 		post_process_shader.SetUniform("uniform_texture", 10);
 		post_process_shader.Bind();
@@ -149,6 +207,12 @@ namespace GL
 		}
 
 		scene.light.ImGui();
+
+		if (ImGui::CollapsingHeader("Preview"))
+		{
+			ImGui::ListBox("Previews", (int*)&m_active_preview, m_name_previews, NUMBER_OF_PREVIEWS, 5);
+			ImGui::Checkbox("Show Voxels", &m_show_voxels);
+		}
 
 		ImGui::End();
 

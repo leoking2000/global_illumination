@@ -22,7 +22,7 @@ namespace GL
 		}
 		else
 		{
-			m_light_proj = glm::perspective<f32>(PI / 2.0f, 1, 0.1f, 1000.0f);
+			m_light_proj = glm::perspective<f32>(m_outercutOffAngle + PI / 8.0f, 1, 0.1f, 1000.0f);
 			m_radiance = glm::vec3(9.0f);
 		}
 	}

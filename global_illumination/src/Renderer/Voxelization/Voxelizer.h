@@ -6,10 +6,8 @@ namespace GL
 {
 	struct VoxelizerParameters
 	{
-		//Box voxelizationArea = Box(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(22.0f, 12.0f, 15.0f));
-		//Box voxelizationArea = Box(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(22.0f));
-		glm::vec3 center;
-		f32 size;
+		glm::vec3 center = glm::vec3(0.0f, 5.0f, 0.0f);
+		f32 size = 22.0f;
 	};
 
 	struct VoxelizerData
@@ -52,8 +50,8 @@ namespace GL
 	public:
 		void Init();
 		void Voxelize(Scene& scene);
-		void DrawPreviewSpheres(const FrameBuffer& framebuffer,const glm::mat4& proj_view);
-		FrameBuffer& GetVoxels(); // returns the Dilated voxel space
+		void DrawPreviewSpheres(const FrameBuffer& framebuffer,const glm::mat4& proj_view) const;
+		const FrameBuffer& GetVoxels() const; // returns the Dilated voxel space
 	private:
 		void ThreeWayStep(Scene& scene);
 		void MergeStep();

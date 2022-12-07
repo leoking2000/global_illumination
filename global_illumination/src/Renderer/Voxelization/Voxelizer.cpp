@@ -47,7 +47,7 @@ namespace GL
 		DilationStep();
 	}
 
-	void Voxelizer::DrawPreviewSpheres(const FrameBuffer& framebuffer, const glm::mat4& proj_view)
+	void Voxelizer::DrawPreviewSpheres(const FrameBuffer& framebuffer, const glm::mat4& proj_view) const
 	{
 		VoxelizerDrawStratagy& vds = (VoxelizerDrawStratagy&)(*m_strategie);
 
@@ -86,7 +86,7 @@ namespace GL
 		framebuffer.UnBind();
 	}
 
-	FrameBuffer& Voxelizer::GetVoxels()
+	const FrameBuffer& Voxelizer::GetVoxels() const
 	{
 		return *m_voxels_dilated;
 	}
