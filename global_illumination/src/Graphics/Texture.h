@@ -18,6 +18,7 @@ namespace GL
 		RGBA32F,
 		RGBA32UI,
 		R32UI,
+		R32F,
 		DEPTH_COMPONENT32F
 	};
 

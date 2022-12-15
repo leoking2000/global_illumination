@@ -200,7 +200,7 @@ namespace GL
 		{
 			ImGui::Text("Window Width: %i", m_parameters.window_width);
 			ImGui::Text("Window Height: %i", m_parameters.window_height);
-			ImGui::ColorPicker3("Background Color", glm::value_ptr(m_parameters.background_color));
+			//ImGui::ColorPicker3("Background Color", glm::value_ptr(m_parameters.background_color));
 			ImGui::DragFloat("FOV angle (in radians)", &m_parameters.fov_angle, 0.01f, 0.0f, 2 * PI);
 			ImGui::InputFloat("Min Z", &m_parameters.min_z);
 			ImGui::InputFloat("Max Z", &m_parameters.max_z);

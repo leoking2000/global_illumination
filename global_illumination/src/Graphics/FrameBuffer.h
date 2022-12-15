@@ -1,14 +1,22 @@
 #pragma once
 #include "Texture.h"
+#include <optional>
 #include <vector>
 
 namespace GL
 {
+	enum class FrameBufferMode
+	{
+		ColorAttachment,
+		Layered,
+		Texture3D
+	};
+
 	class FrameBuffer
 	{
 	public:
-		FrameBuffer(u32 width, u32 height, u8 colorAttachmentCount, 
-			TextureFormat format = TextureFormat::RGBA32F, bool layered = false);
+		FrameBuffer(u32 width, u32 height, u32 colorAttachmentCount, 
+			TextureFormat format = TextureFormat::RGBA32F, FrameBufferMode fbt = FrameBufferMode::ColorAttachment);
 		~FrameBuffer();
 
 		FrameBuffer(FrameBuffer&& other);
@@ -29,13 +37,20 @@ namespace GL
 		u32 Width() const;
 		u32 Height() const;
 	private:
+		void InitColorAttachmentMode(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
+		void InitLayered(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
+		void InitTexture3D(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
+
+		u32 CheckColorAttachmentNumber(u32 colorAttachmentCount);
+	private:
 		u32 m_width;
 		u32 m_height;
+		u32 m_depth;
 
 		u32 m_id;
-		Texture m_depth_texture;
+		std::optional<Texture> m_depth_texture;
 		std::vector<Texture> m_color_attachments;
 	};
 
-
+	u32 CheckFramebufferStatus(u32 framebuffer_object);
 }

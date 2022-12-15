@@ -50,6 +50,6 @@ void main()
 
     out_albedo = albedo;
     out_pos = vec4(position, 1);
-    out_normal = vec4(CalculateNormal(), 1);
+    out_normal = vec4(CalculateNormal(), 0);
     out_mask = vec4(u_roughness, u_metallic, 0.0, 0.0);
 }

@@ -20,8 +20,12 @@ namespace GL
 		const Voxelizer& GetVoxelizer() const;
 		const FrameBuffer& GetRSMBuffer() const;
 	private:
+		void CachingStage(Scene& scene);
+	private:
 		GlobalIlluminationParameters m_params;
 		Voxelizer m_voxelizer;
 		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
+
+		FrameBuffer m_caching_buffer;
 	};
 }

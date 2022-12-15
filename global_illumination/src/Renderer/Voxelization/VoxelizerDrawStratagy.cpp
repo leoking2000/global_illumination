@@ -11,7 +11,7 @@ namespace GL
 	VoxelizerDrawStratagy::VoxelizerDrawStratagy(const VoxelizerData& data)
 		:
 		m_data(data),
-		m_framebuffer(data.resolution, data.resolution, 3, TextureFormat::RGBA32UI, true)
+		m_framebuffer(data.resolution, data.resolution, 3, TextureFormat::RGBA32UI, FrameBufferMode::Layered)
 	{
 		Init();
 	}

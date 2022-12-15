@@ -181,8 +181,13 @@ namespace GL
 			break;
 		case TextureFormat::R32UI:
 			internalFormat = GL_R32UI;
-			color_format = GL_UNSIGNED_INT;
-			type = GL_RED;
+			color_format = GL_RGB;
+			type = GL_UNSIGNED_INT;
+			break;
+		case TextureFormat::R32F:
+			internalFormat = GL_RED;
+			color_format = GL_RGB;
+			type = GL_FLOAT;
 			break;
 		case TextureFormat::DEPTH_COMPONENT32F:
 			internalFormat = GL_DEPTH_COMPONENT32F;
@@ -208,7 +213,6 @@ namespace GL
 		case DIM_2D_ARRAY:
 			glCall(glTexImage3D(TYPE[m_params.dimensions], 0,
 				internalFormat, m_params.size.x, m_params.size.y, m_params.size.z, 0, color_format, type, data));
-			m_minimap = false;
 			break;
 		}
 
