@@ -49,8 +49,6 @@ namespace GL
 
 	void Voxelizer::DrawPreviewSpheres(const FrameBuffer& framebuffer, const glm::mat4& proj_view) const
 	{
-		VoxelizerDrawStratagy& vds = (VoxelizerDrawStratagy&)(*m_strategie);
-
 		framebuffer.Bind();
 
 		glCall(glDisable(GL_BLEND));
@@ -62,6 +60,7 @@ namespace GL
 
 		m_voxels_dilated->BindColorTexture(0, 6);
 
+		shader.SetUniform("u_use_voxels", 1);
 		shader.SetUniform("u_voxels", 6);
 
 		shader.SetUniform("u_proj_view_matrix", proj_view);
@@ -82,6 +81,8 @@ namespace GL
 
 		mesh.m_vertexArray.UnBind();
 		mesh.m_indexBuffer.UnBind();
+
+		shader.UnBind();
 
 		framebuffer.UnBind();
 	}

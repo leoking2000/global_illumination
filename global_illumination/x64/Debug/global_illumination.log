@@ -1,3 +1,2 @@
-﻿  FrameBuffer.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Graphics\FrameBuffer.cpp(242,39): warning C4018: '>': signed/unsigned mismatch
+﻿  Renderer.cpp
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

@@ -3,6 +3,9 @@ layout(location = 0) in vec3 apos;
 layout(location = 1) in vec2 atex_cord;
 layout(location = 2) in vec3 anormal;
 
+
+uniform int u_use_voxels; // 0 -> use u_grid, 1 -> use u_voxels
+uniform sampler3D u_grid;
 uniform usampler2D u_voxels;
 
 uniform mat4 u_proj_view_matrix;
@@ -46,15 +49,35 @@ void main()
 	grid_position.y = ( gl_InstanceID / u_size.x ) % u_size.y;
 	grid_position.x = gl_InstanceID % u_size.x;
 
-    ok = (!checkCRCValidityGeo(grid_position)) ? 1 : 0;
+	if(u_use_voxels == 1)
+	{
+    	ok = (!checkCRCValidityGeo(grid_position)) ? 1 : 0;
 
-    vec3 stratum = (uniform_bbox_max - uniform_bbox_min) / vec3(u_size);
+    	vec3 stratum = (uniform_bbox_max - uniform_bbox_min) / vec3(u_size);
 
-	vec3 pos_wcs = vec3(u_scale * vec4(apos, 1.0)).xyz;
-	pos_wcs += uniform_bbox_min + (grid_position + 0.5) * stratum;
+		vec3 pos_wcs = vec3(u_scale * vec4(apos, 1.0)).xyz;
+		pos_wcs += uniform_bbox_min + (grid_position + 0.5) * stratum;
 
-    gl_Position = u_proj_view_matrix * vec4(pos_wcs,1);
+    	gl_Position = u_proj_view_matrix * vec4(pos_wcs,1);
 
-	position = pos_wcs;
-	normal = anormal;
+		position = pos_wcs;
+		normal = anormal;
+	}
+	else
+	{
+		vec4 voxel = texelFetch(u_grid, grid_position, 0);
+
+		int musk = int(voxel.w);
+
+		ok = musk;//(musk << 24) == 0 ? 1 : 0;
+
+		vec3 pos_wcs = vec3(u_scale * vec4(apos, 1.0)).xyz;
+		pos_wcs += voxel.xyz;
+
+    	gl_Position = u_proj_view_matrix * vec4(pos_wcs,1);
+		
+		position = pos_wcs;
+		normal = anormal;
+
+	}
 }

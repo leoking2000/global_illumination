@@ -45,19 +45,18 @@ namespace GL
 	{
 		UpdateWindowSize(width, height);
 
-		m_global_illumination.Draw(scene);
-
 		glm::mat4 proj = glm::perspective(m_parameters.fov_angle,
 			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
 			m_parameters.min_z, m_parameters.max_z);
+
+		m_global_illumination.Draw(scene);
 
 		m_geometry_stratagy->ClearFrameBuffer();
 		scene.Draw(*m_geometry_stratagy, proj, scene.camera.GetCameraView());
 
 		if (m_show_voxels)
 		{
-			m_global_illumination.GetVoxelizer().DrawPreviewSpheres(m_geometry_stratagy->GetFrameBuffer(), 
-				proj * scene.camera.GetCameraView());
+			m_global_illumination.DrawPreview(m_geometry_stratagy->GetFrameBuffer(), proj * scene.camera.GetCameraView());
 		}
 	
 		ShadingPass(scene.camera, scene);

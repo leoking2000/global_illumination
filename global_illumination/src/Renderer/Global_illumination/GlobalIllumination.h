@@ -19,13 +19,17 @@ namespace GL
 
 		const Voxelizer& GetVoxelizer() const;
 		const FrameBuffer& GetRSMBuffer() const;
+
+		void DrawPreview(const FrameBuffer& framebuffer, const glm::mat4& proj_view);
 	private:
-		void CachingStage(Scene& scene);
+		void GridCreationStage(Scene& scene);
 	private:
 		GlobalIlluminationParameters m_params;
 		Voxelizer m_voxelizer;
 		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
 
-		FrameBuffer m_caching_buffer;
+
+		FrameBuffer m_grid_buffer;
+		u32 m_grid_shader;
 	};
 }

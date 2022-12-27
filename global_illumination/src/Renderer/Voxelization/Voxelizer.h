@@ -71,5 +71,6 @@ namespace GL
 
 		u32 m_cube;
 		u32 m_screen_filled_quad;
+		friend class GlobalIllumination;
 	};
 }
