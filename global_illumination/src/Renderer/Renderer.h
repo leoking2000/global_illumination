@@ -1,6 +1,7 @@
 #pragma once
 #include "SceneGraph/Scene.h"
 #include "Global_illumination/GlobalIllumination.h"
+#include "PreviewRenderer.h"
 
 namespace GL
 {
@@ -49,7 +50,11 @@ namespace GL
 
 		GlobalIllumination m_global_illumination;
 	private:
+		void PreviewPass(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view);
+
 		// for previews
+		PreviewRenderer m_preview;
+
 		enum Preview : int
 		{
 			FINAL_OUTPUT              = 0,
@@ -79,8 +84,10 @@ namespace GL
 		};
 
 		Preview m_active_preview = FINAL_OUTPUT;
-		bool m_show_voxels = false;
 
+		bool m_musked = false;
+		bool m_show_voxels = false;
+		bool m_show_all = false;
 	};
 
 

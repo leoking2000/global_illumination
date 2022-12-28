@@ -126,6 +126,9 @@
     <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Renderer\PreviewRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Graphics\FrameBuffer.h">
@@ -261,6 +264,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\PreviewRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Renderer\Voxelization\VoxelizerData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

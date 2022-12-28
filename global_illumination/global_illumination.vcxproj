@@ -22,6 +22,7 @@
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\MeshFactory.cpp" />
     <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp" />
+    <ClCompile Include="src\Renderer\PreviewRenderer.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
     <ClCompile Include="src\SceneGraph\Light.cpp" />
     <ClCompile Include="src\Renderer\Voxelization\Box.cpp" />
@@ -62,6 +63,8 @@
     <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
     <ClInclude Include="src\Global\Timer.h" />
     <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h" />
+    <ClInclude Include="src\Renderer\PreviewRenderer.h" />
+    <ClInclude Include="src\Renderer\Voxelization\VoxelizerData.h" />
     <ClInclude Include="src\SceneGraph\NodeBehavior.h" />
     <ClInclude Include="src\Renderer\Voxelization\Box.h" />
     <ClInclude Include="src\Renderer\DrawStratagies\GeometryDrawStratagy.h" />

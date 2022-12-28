@@ -54,11 +54,8 @@ namespace GL
 		m_geometry_stratagy->ClearFrameBuffer();
 		scene.Draw(*m_geometry_stratagy, proj, scene.camera.GetCameraView());
 
-		if (m_show_voxels)
-		{
-			m_global_illumination.DrawPreview(m_geometry_stratagy->GetFrameBuffer(), proj * scene.camera.GetCameraView());
-		}
-	
+		PreviewPass(m_geometry_stratagy->GetFrameBuffer(), proj * scene.camera.GetCameraView());
+		
 		ShadingPass(scene.camera, scene);
 		PostProcess();
 	}
@@ -188,6 +185,17 @@ namespace GL
 		post_process_shader.UnBind();
 	}
 
+	void Renderer::PreviewPass(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view)
+	{
+		if (m_show_voxels)
+		{
+			const FrameBuffer& voxels = m_global_illumination.GetVoxelizer().GetVoxels(m_musked);
+
+			m_preview.DrawVoxels(geometryBuffer, proj_view,
+				m_global_illumination.GetVoxelizer().GetData(), voxels, m_musked, m_show_all);
+		}
+	}
+
 	void Renderer::DebugImGui(Scene& scene, f32 dt)
 	{
 		ImGui::Begin("Renderer");
@@ -210,7 +218,9 @@ namespace GL
 		if (ImGui::CollapsingHeader("Preview"))
 		{
 			ImGui::ListBox("Previews", (int*)&m_active_preview, m_name_previews, NUMBER_OF_PREVIEWS, 5);
+			ImGui::Checkbox("Musked", &m_musked);
 			ImGui::Checkbox("Show Voxels", &m_show_voxels);
+			ImGui::Checkbox("Show All Voxels", &m_show_all);
 		}
 
 		ImGui::End();
