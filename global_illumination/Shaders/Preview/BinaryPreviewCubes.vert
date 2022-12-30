@@ -42,7 +42,7 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
     return ((res.r | res.g | res.b | res.a) > 0u) ;
 }
 
-ivec3 computeGridPosition(int offset)
+ivec3 computeGridPosition()
 {
     ivec3 grid_position;
     grid_position.z = gl_InstanceID / ( u_size.x * u_size.y );
@@ -54,7 +54,7 @@ ivec3 computeGridPosition(int offset)
 
 void main()
 {
-    ivec3 grid_position = computeGridPosition(gl_InstanceID);
+    ivec3 grid_position = computeGridPosition();
 
     if(u_use_musked == 1)
     {

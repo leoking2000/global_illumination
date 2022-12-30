@@ -41,7 +41,7 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
 
 int computeOffset(in ivec3 grid_position)
 {
-    return grid_position.x + u_size.y * (grid_position.y + u_size.x * grid_position.z);
+    return grid_position.x + u_size.y * (grid_position.y + u_size.x * grid_position.z); // 3d to 1D maping
 }
 
 void main()

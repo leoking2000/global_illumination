@@ -49,14 +49,21 @@ namespace GL
 			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
 			m_parameters.min_z, m_parameters.max_z);
 
-		m_global_illumination.Draw(scene);
+		glm::mat4 view = scene.camera.GetCameraView();
 
 		m_geometry_stratagy->ClearFrameBuffer();
-		scene.Draw(*m_geometry_stratagy, proj, scene.camera.GetCameraView());
+		scene.Draw(*m_geometry_stratagy, proj, view);
 
-		PreviewPass(m_geometry_stratagy->GetFrameBuffer(), proj * scene.camera.GetCameraView());
+		PreviewPass(m_geometry_stratagy->GetFrameBuffer(), proj * view);
+
+		m_global_illumination.PreDraw(scene);
 		
-		ShadingPass(scene.camera, scene);
+		m_global_illumination.Draw(scene, m_shading_buffer, m_geometry_stratagy->GetFrameBuffer(),
+			proj, view, m_parameters.background_color);
+
+
+		//ShadingPass(scene.camera, scene);
+
 		PostProcess();
 	}
 

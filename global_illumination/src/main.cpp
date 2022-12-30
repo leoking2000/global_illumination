@@ -15,7 +15,7 @@ public:
 
     void SetUpSceneFactory()
     {
-        scene.light = GL::Light(glm::vec3(0.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
+        //scene.light = GL::Light(glm::vec3(0.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
 
         //u32 main = GL::AssetManagement::LoadFromObjFile("\\level1\\level1.obj");
         u32 main = GL::AssetManagement::LoadFromObjFile("\\factory\\factory.obj");

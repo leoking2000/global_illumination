@@ -6,7 +6,7 @@ namespace GL
 	struct GlobalIlluminationParameters
 	{
 		VoxelizerParameters voxelizer_params;
-		const u32 rsm_resoulution = 1024;
+		const u32 rsm_resoulution = 1024 * 2;
 		u32 bounces = 1;
 	};
 
@@ -19,7 +19,9 @@ namespace GL
 		GlobalIllumination& operator=(const GlobalIllumination&) = delete;
 	public:
 		void Init(Scene& scene);
-		void Draw(Scene& scene);
+		void PreDraw(Scene& scene);
+		void Draw(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
+			const glm::mat4& proj, const glm::mat4& view, const glm::vec3& background_color);
 
 		const Voxelizer& GetVoxelizer() const;
 		const FrameBuffer& GetRSMBuffer() const;
@@ -33,6 +35,9 @@ namespace GL
 		// Caching
 		FrameBuffer m_cachingBuffer;
 		u32 m_caching_shader;
+
+		// Reconstruction
+		u32 m_reconstruction_shader;
 
 	};
 }

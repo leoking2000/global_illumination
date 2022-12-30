@@ -11,8 +11,8 @@ namespace GL
 		m_params(params),
 		m_voxelizer(m_params.voxelizer_params),
 		m_cachingBuffer(
-			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 
-			6, TextureFormat::RGBA32F)
+			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z,
+			7, TextureFormat::RGBA32F)
 	{
 
 	}
@@ -32,11 +32,12 @@ namespace GL
 		);
 
 		m_caching_shader = AssetManagement::CreateShader("GI/caching");
+		m_reconstruction_shader = AssetManagement::CreateShader("GI/reconstruction");
 
 		RandomNumbers::Genarate();
 	}
 
-	void GlobalIllumination::Draw(Scene& scene)
+	void GlobalIllumination::PreDraw(Scene& scene)
 	{
 		// voxelize
 		m_voxelizer.Voxelize(scene);
@@ -51,6 +52,72 @@ namespace GL
 		// bounce
 
 		// blend
+	}
+
+	void GlobalIllumination::Draw(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer, 
+		const glm::mat4& proj, const glm::mat4& view, const glm::vec3& background_color)
+	{
+		shading_buffer.Bind();
+
+		glCall(glViewport(0, 0, shading_buffer.Width(), shading_buffer.Height()));
+		glCall(glClearColor(background_color.r, background_color.g, background_color.b, 1));
+		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+		glCall(glDisable(GL_DEPTH_TEST));
+
+		geometryBuffer.BindColorTexture(0, 0);
+		geometryBuffer.BindColorTexture(1, 1);
+		geometryBuffer.BindColorTexture(2, 2);
+		geometryBuffer.BindColorTexture(3, 3);
+		geometryBuffer.BindDepthTexture(5);
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_reconstruction_shader);
+
+		shader.SetUniform("u_tex_albedo", 0);
+		shader.SetUniform("u_tex_pos", 1);
+		shader.SetUniform("u_tex_normal", 2);
+		shader.SetUniform("u_tex_mask", 3);
+		shader.SetUniform("u_tex_depth", 5);
+
+		shader.SetUniform("u_camera_pos", scene.camera.pos);
+		shader.SetUniform("u_camera_dir", scene.camera.dir);
+
+		scene.light.SetUniforms(shader);
+
+		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
+
+		GetRSMBuffer().BindDepthTexture(6);
+		shader.SetUniform("u_shadowMap", 6);
+
+		shader.SetUniform("uniform_projection_view_inv", glm::inverse(proj * view));
+		shader.SetUniform("uniform_view_inv", glm::inverse(view));
+
+		m_cachingBuffer.BindColorTexture(0, 7);
+		m_cachingBuffer.BindColorTexture(1, 8);
+		m_cachingBuffer.BindColorTexture(2, 9);
+		m_cachingBuffer.BindColorTexture(3, 10);
+		m_cachingBuffer.BindColorTexture(4, 11);
+		m_cachingBuffer.BindColorTexture(5, 12);
+		m_cachingBuffer.BindColorTexture(6, 13);
+
+		shader.SetUniform("caching_data[0]", 7);
+		shader.SetUniform("caching_data[1]", 8);
+		shader.SetUniform("caching_data[2]", 9);
+		shader.SetUniform("caching_data[3]", 10);
+		shader.SetUniform("caching_data[4]", 11);
+		shader.SetUniform("caching_data[5]", 12);
+		shader.SetUniform("caching_data[6]", 13);
+
+		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
+		shader.SetUniform("uniform_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+		shader.SetUniform("uniform_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+
+		shader.Bind();
+
+		AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad)->Draw();
+
+		shader.UnBind();
+		shading_buffer.UnBind();
 	}
 
 	const Voxelizer& GlobalIllumination::GetVoxelizer() const
@@ -96,10 +163,10 @@ namespace GL
 		shader.SetUniform("u_RSM_normal", 5);
 
 		shader.SetUniform("u_spread", 1.0f);
-		shader.SetUniform("u_num_samples", 50);
+		shader.SetUniform("u_num_samples", 100);
 
-		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 50));
-		assert(shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 50));
+		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 100));
+		assert(shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100));
 
 		shader.Bind();
 
@@ -115,7 +182,6 @@ namespace GL
 
 		m_cachingBuffer.UnBind();
 	}
-
 }
 
 
