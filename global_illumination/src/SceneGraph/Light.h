@@ -23,11 +23,11 @@ namespace GL
 		glm::mat4 LightView();
 
 		void SetUniforms(ShaderProgram& shader);
-	private:
-		glm::vec3 m_radiance = glm::vec3(1.0f);
-
+	public:
 		glm::vec3 m_pos;
 		glm::vec3 m_dir;
+	private:
+		glm::vec3 m_radiance = glm::vec3(1.0f);
 		LightType m_type;
 
 		f32 m_cutOffAngle = glm::radians(12.5f);

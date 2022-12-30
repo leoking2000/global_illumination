@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\MeshFactory.cpp" />
+    <ClCompile Include="src\Global\RandomNumbers.cpp" />
     <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp" />
     <ClCompile Include="src\Renderer\PreviewRenderer.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
@@ -61,6 +62,7 @@
   <ItemGroup>
     <ClInclude Include="src\AssetManagement\AssetManagement.h" />
     <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
+    <ClInclude Include="src\Global\RandomNumbers.h" />
     <ClInclude Include="src\Global\Timer.h" />
     <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h" />
     <ClInclude Include="src\Renderer\PreviewRenderer.h" />

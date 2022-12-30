@@ -228,6 +228,46 @@ namespace GL
 		return false;
 	}
 
+	bool ShaderProgram::SetUniform(const std::string& name, const std::vector<glm::vec2>& vec_arr, u32 size)
+	{
+		Bind();
+
+		for (u32 i = 0; i < size; i++)
+		{
+			i32 location = GetLocation(name + "[" + std::to_string(i) + "]");
+
+			if (location == -1) {
+				UnBind();
+				return false;
+			}
+
+			glCall(glUniform2f(location, vec_arr[i].x, vec_arr[i].y));
+		}
+
+		UnBind();
+		return true;
+	}
+
+	bool ShaderProgram::SetUniform(const std::string& name, const std::vector<glm::vec3>& vec_arr, u32 size)
+	{
+		Bind();
+
+		for (u32 i = 0; i < size; i++)
+		{
+			i32 location = GetLocation(name + "[" + std::to_string(i) + "]");
+
+			if (location == -1) {
+				UnBind();
+				return false;
+			}
+
+			glCall(glUniform3f(location, vec_arr[i].x, vec_arr[i].y, vec_arr[i].z));
+		}
+
+		UnBind();
+		return true;
+	}
+
 	i32 ShaderProgram::GetLocation(const std::string& name) const
 	{
 		if (m_uniforms.find(name) != m_uniforms.end())

@@ -34,7 +34,6 @@ namespace GL
 
 		// make usefull meshs
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
-
 	}
 
 	void Voxelizer::Voxelize(Scene& scene)
@@ -43,7 +42,7 @@ namespace GL
 		MergeStep();
 		DilationStep();
 
-		GridCreationStage(scene);
+		GridCreationStage();
 	}
 
 	const FrameBuffer& Voxelizer::GetVoxels(bool musked) const
@@ -115,7 +114,7 @@ namespace GL
 		m_voxels_dilated.UnBind();
 	}
 
-	void Voxelizer::GridCreationStage(Scene& scene)
+	void Voxelizer::GridCreationStage()
 	{
 		m_grid_buffer.Bind();
 

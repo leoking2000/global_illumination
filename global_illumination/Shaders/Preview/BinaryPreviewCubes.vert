@@ -42,16 +42,23 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
     return ((res.r | res.g | res.b | res.a) > 0u) ;
 }
 
-void main()
+ivec3 computeGridPosition(int offset)
 {
     ivec3 grid_position;
     grid_position.z = gl_InstanceID / ( u_size.x * u_size.y );
     grid_position.y = ( gl_InstanceID / u_size.x ) % u_size.y;
     grid_position.x = gl_InstanceID % u_size.x;
 
+    return grid_position;
+}
+
+void main()
+{
+    ivec3 grid_position = computeGridPosition(gl_InstanceID);
+
     if(u_use_musked == 1)
     {
-        ok = (!checkCRCValidityGeo(grid_position)) ? 1 : 0;
+        ok = (checkCRCValidityGeo(grid_position)) ? 0 : -1;
 
         vec3 stratum = (uniform_bbox_max - uniform_bbox_min) / vec3(u_size);
 
@@ -67,9 +74,8 @@ void main()
     {
         vec4 voxel = texelFetch(u_voxels_3D, grid_position, 0);
 
-        int musk = int(voxel.w);
-
-        ok = musk;//(musk << 24) == 0 ? 1 : 0;
+        int offset = int(voxel.w);
+        ok = offset;
 
         vec3 pos_wcs = vec3(u_scale * vec4(apos, 1.0)).xyz;
         pos_wcs += voxel.xyz;
@@ -78,6 +84,5 @@ void main()
         
         position = pos_wcs;
         normal = anormal;
-
     }
 }

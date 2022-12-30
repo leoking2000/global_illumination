@@ -46,6 +46,9 @@ namespace GL
 		bool SetUniform(const std::string& name, glm::uvec3 a) const;
 		bool SetUniform(const std::string& name, unsigned int i) const;
 		bool SetUniform(const std::string& name, const glm::mat4& mat) const;
+
+		bool SetUniform(const std::string& name, const std::vector<glm::vec2>& vec_arr, u32 size);
+		bool SetUniform(const std::string& name, const std::vector<glm::vec3>& vec_arr, u32 size);
 	private:
 		i32 GetLocation(const std::string& name) const;
 	private:

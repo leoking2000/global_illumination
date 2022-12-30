@@ -23,11 +23,13 @@ namespace GL
 
 		const FrameBuffer& GetVoxels(bool musked) const;
 		const VoxelizerData& GetData() const;
+
+		u32 m_screen_filled_quad;
 	private:
 		void ThreeWayStep(Scene& scene);
 		void MergeStep();
 		void DilationStep();
-		void GridCreationStage(Scene& scene);
+		void GridCreationStage();
 	private:
 		VoxelizerData m_data;
 
@@ -43,9 +45,5 @@ namespace GL
 		u32 m_grid_shader;
 
 		u32 m_previewSpheresShader;
-
-		u32 m_cube;
-		u32 m_screen_filled_quad;
-		
 	};
 }

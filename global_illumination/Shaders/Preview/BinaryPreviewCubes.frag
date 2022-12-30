@@ -12,7 +12,7 @@ uniform int u_show_all;
 
 void main(void)
 {
-	if(ok == 0) 
+	if(ok >= 0) 
     {
         out_albedo = vec4(1.0, 0.0, 0.0, 1.0); // red
         out_pos = vec4(position, 1.0);
