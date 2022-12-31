@@ -162,7 +162,7 @@ namespace GL
 		GetRSMBuffer().BindColorTexture(2, 5);
 		shader.SetUniform("u_RSM_normal", 5);
 
-		shader.SetUniform("u_spread", 1.0f);
+		shader.SetUniform("u_spread", 0.5f);
 		shader.SetUniform("u_num_samples", 100);
 
 		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 100));

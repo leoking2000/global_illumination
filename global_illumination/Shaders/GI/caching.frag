@@ -85,7 +85,7 @@ vec2 ShadowProjection(in vec3 pos_wcs)
     float reverse = sign(dot(u_light_dir, pos_wcs - u_light_pos));
     vec2 uv = vec2(reverse * 0.5 * ndc.xy + 0.5);
 
-    return clamp(uv, vec2(0.0, 0.0), vec2(1.0, 1.0));
+    return clamp(ndc.xy, vec2(0.0, 0.0), vec2(1.0, 1.0));
 }
 
 void main()
@@ -118,10 +118,16 @@ void main()
     ivec2 rsm_size = textureSize(u_RSM_flux, 0);
     float inv_pdf = rsm_size.x * rsm_size.y * u_spread * u_spread;
 
+    // clamp the sampling center based on the spread parameter
+    vec2 uv_c = vec2(clamp(rsm_uv, vec2(u_spread * 0.499), vec2(1.0 - u_spread * 0.499)));
+    // the samples are generated in the range [0,1] with origin (0,0) so move the sampling center
+    // to coincide with the sample origin
+    uv_c -= (0.5 * vec2(u_spread));
+
     for (int i = 0; i < u_num_samples; ++i)
     {
         // get a random RSM sample in uv coordinates
-        vec2 uv = rsm_uv + u_samples_2d[i] * u_spread;
+        vec2 uv = uv_c + u_samples_2d[i] * u_spread;
 
         //float depth = texture(u_shadowMap, uv).r;
         vec3 s_pos = texture(u_RSM_pos, uv).xyz;

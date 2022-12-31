@@ -244,7 +244,14 @@ vec3 DoLightingCalculations(vec3 albedo, vec3 pos, vec3 normal, vec3 mask,float 
 	float NdotL = max(dot(normal, surfToLight), 0.0);
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
-    vec3 color = (Lo * shadow_value * intensity) + gi_diffuse_color * Lo;
+	gi_diffuse_color *= Lo;
+	gi_diffuse_color = max(gi_diffuse_color, vec3(0));
+
+    vec3 color = (Lo * shadow_value * intensity) + gi_diffuse_color;
+
+	//color += 0.1 * albedo;
+	color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0/2.2)); 
 
 	return color;
 }
@@ -319,7 +326,7 @@ void main(void)
     vec3 albedo = texture(u_tex_albedo, uv).rgb;
 	vec3 mask = texture(u_tex_mask, uv).rgb;
 
-    vec3 color = vec3(0);
+    vec3 color;
 	if(u_light.type == 0)
 	{
 		color = DoLightingCalculations(albedo, pos, normal, mask, 1.0, gi_diffuse_color);
