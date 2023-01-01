@@ -89,8 +89,8 @@ namespace GL
 		GetRSMBuffer().BindDepthTexture(6);
 		shader.SetUniform("u_shadowMap", 6);
 
-		shader.SetUniform("uniform_projection_view_inv", glm::inverse(proj * view));
-		shader.SetUniform("uniform_view_inv", glm::inverse(view));
+		shader.SetUniform("u_projection_view_inv", glm::inverse(proj * view));
+		shader.SetUniform("u_view_inv", glm::inverse(view));
 
 		m_cachingBuffer.BindColorTexture(0, 7);
 		m_cachingBuffer.BindColorTexture(1, 8);
@@ -109,8 +109,8 @@ namespace GL
 		shader.SetUniform("caching_data[6]", 13);
 
 		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
-		shader.SetUniform("uniform_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
-		shader.SetUniform("uniform_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
 
 		shader.Bind();
 
@@ -145,28 +145,38 @@ namespace GL
 		m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
 		shader.SetUniform("u_voxels_musked", 0);
 
-		m_voxelizer.GetVoxels(false).BindColorTexture(0, 1);
-		shader.SetUniform("u_voxels_3D", 1);
+		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
+		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+
+		const glm::vec3& bsize = m_voxelizer.GetData().voxelizationArea.GetSize();
+		glm::vec3 stratum = bsize;
+		stratum /= glm::ivec3(m_voxelizer.GetData().dimensions);
+		shader.SetUniform("u_stratum", stratum);
+
+		glm::vec3 voxelizer_bmin = m_voxelizer.GetData().voxelizationArea.GetMin();
+		glm::vec3 voxelizer_bmax = m_voxelizer.GetData().voxelizationArea.GetMax();
+		glm::vec3 voxelizer_bextents = voxelizer_bmax - voxelizer_bmin;
+		shader.SetUniform("u_occlusion_bextents", voxelizer_bextents);
+
+
+		GetRSMBuffer().BindColorTexture(0, 1);
+		shader.SetUniform("u_RSM_flux", 1);
+
+		GetRSMBuffer().BindColorTexture(1, 2);
+		shader.SetUniform("u_RSM_pos", 2);
+
+		GetRSMBuffer().BindColorTexture(2, 3);
+		shader.SetUniform("u_RSM_normal", 3);
 
 		shader.SetUniform("u_light_pos", scene.light.m_pos);
 		shader.SetUniform("u_light_dir", scene.light.m_dir);
 		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
+		shader.SetUniform("u_spread", 1.0f);
+		shader.SetUniform("u_num_samples", 200);
 
-		GetRSMBuffer().BindColorTexture(0, 4);
-		shader.SetUniform("u_RSM_flux", 4);
-
-		GetRSMBuffer().BindColorTexture(1, 3);
-		shader.SetUniform("u_RSM_pos", 3);
-
-		GetRSMBuffer().BindColorTexture(2, 5);
-		shader.SetUniform("u_RSM_normal", 5);
-
-		shader.SetUniform("u_spread", 0.5f);
-		shader.SetUniform("u_num_samples", 100);
-
-		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 100));
-		assert(shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100));
+		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 200));
+		assert(shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 200));
 
 		shader.Bind();
 
