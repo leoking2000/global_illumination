@@ -30,7 +30,7 @@ uniform mat4 u_light_projection_view;
 // settings
 uniform int u_num_samples;
 uniform float u_spread;
-#define NUM_OCCLUSION_SAMPLES 10
+#define NUM_OCCLUSION_SAMPLES 5
 
 // random 
 uniform vec2 u_samples_2d[200];

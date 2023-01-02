@@ -17,7 +17,7 @@ namespace GL
 	{
 		if (m_type == LightType::DIRECTIONAL)
 		{
-			m_light_proj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+			m_light_proj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.1f, 100.0f);
 			m_radiance = glm::vec3(1.0f);
 		}
 		else
@@ -43,7 +43,7 @@ namespace GL
 
 			if (m_type == LightType::DIRECTIONAL)
 			{
-				m_light_proj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+				m_light_proj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.1f, 100.0f);
 				//m_radiance = glm::vec3(1.0f);
 			}
 			else if (old_angle != m_outercutOffAngle)

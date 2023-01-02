@@ -6,7 +6,7 @@ namespace GL
 	struct GlobalIlluminationParameters
 	{
 		VoxelizerParameters voxelizer_params;
-		const u32 rsm_resoulution = u32(1024);
+		const u32 rsm_resoulution = u32(512);
 		u32 bounces = 3;
 	};
 
@@ -27,6 +27,7 @@ namespace GL
 		const FrameBuffer& GetRSMBuffer() const;
 	private:
 		void CachingStep(Scene& scene);
+		void BounceStep();
 	private:
 		GlobalIlluminationParameters m_params;
 		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
@@ -37,7 +38,10 @@ namespace GL
 		u32 m_caching_shader;
 
 		// bounces
+		FrameBuffer m_cachingBuffer_copy;
+		FrameBuffer* m_active_cachingBuffer;
 		u32 m_bounces;
+		u32 m_bounces_shader;
 
 		// Reconstruction
 		u32 m_reconstruction_shader;

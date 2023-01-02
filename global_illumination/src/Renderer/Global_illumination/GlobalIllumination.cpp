@@ -3,6 +3,7 @@
 #include "AssetManagement/AssetManagement.h"
 #include "Renderer/DrawStratagies/GeometryDrawStratagy.h"
 #include "Global/RandomNumbers.h"
+#include <algorithm>
 
 namespace GL
 {
@@ -12,7 +13,10 @@ namespace GL
 		m_voxelizer(m_params.voxelizer_params),
 		m_cachingBuffer(
 			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
-			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F)
+			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F),
+		m_cachingBuffer_copy((u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
+			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F),
+		m_bounces(params.bounces)
 	{
 
 	}
@@ -23,7 +27,8 @@ namespace GL
 
 		m_rsm_stratagy = std::unique_ptr<DrawStrategy>(
 			new GeometryDrawStratagy(
-				FrameBuffer(m_params.rsm_resoulution, m_params.rsm_resoulution, 3, TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR),
+				FrameBuffer(m_params.rsm_resoulution, m_params.rsm_resoulution, 3, 
+					TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR),
 				AssetManagement::CreateShader("GI/rsm_generation"),
 				[&](ShaderProgram& shader) {
 				scene.light.SetUniforms(shader);
@@ -32,6 +37,7 @@ namespace GL
 		);
 
 		m_caching_shader = AssetManagement::CreateShader("GI/caching");
+		m_bounces_shader = AssetManagement::CreateShader("GI/bounce");
 		m_reconstruction_shader = AssetManagement::CreateShader("GI/reconstruction");
 
 		RandomNumbers::Genarate();
@@ -50,6 +56,7 @@ namespace GL
 		CachingStep(scene);
 
 		// bounce
+		BounceStep();
 
 		// blend
 	}
@@ -92,13 +99,14 @@ namespace GL
 		shader.SetUniform("u_projection_view_inv", glm::inverse(proj * view));
 		shader.SetUniform("u_view_inv", glm::inverse(view));
 
-		m_cachingBuffer.BindColorTexture(0, 7);
-		m_cachingBuffer.BindColorTexture(1, 8);
-		m_cachingBuffer.BindColorTexture(2, 9);
-		m_cachingBuffer.BindColorTexture(3, 10);
-		m_cachingBuffer.BindColorTexture(4, 11);
-		m_cachingBuffer.BindColorTexture(5, 12);
-		m_cachingBuffer.BindColorTexture(6, 13);
+		assert(m_active_cachingBuffer != nullptr);
+		m_active_cachingBuffer->BindColorTexture(0, 7);
+		m_active_cachingBuffer->BindColorTexture(1, 8);
+		m_active_cachingBuffer->BindColorTexture(2, 9);
+		m_active_cachingBuffer->BindColorTexture(3, 10);
+		m_active_cachingBuffer->BindColorTexture(4, 11);
+		m_active_cachingBuffer->BindColorTexture(5, 12);
+		m_active_cachingBuffer->BindColorTexture(6, 13);
 
 		shader.SetUniform("caching_data[0]", 7);
 		shader.SetUniform("caching_data[1]", 8);
@@ -174,10 +182,10 @@ namespace GL
 		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
 		shader.SetUniform("u_spread", 1.0f);
-		shader.SetUniform("u_num_samples", 200);
+		shader.SetUniform("u_num_samples", 33);
 
-		assert(shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 200));
-		assert(shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 200));
+		shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 33);
+		shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 33);
 
 		shader.Bind();
 
@@ -192,6 +200,72 @@ namespace GL
 		shader.UnBind();
 
 		m_cachingBuffer.UnBind();
+	}
+
+	void GlobalIllumination::BounceStep()
+	{
+		m_active_cachingBuffer = &m_cachingBuffer;
+		FrameBuffer* write_buffer = &m_cachingBuffer_copy;
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_bounces_shader);
+		Mesh& mesh = *AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad);
+
+		glm::vec3 bsize = m_voxelizer.GetData().voxelizationArea.GetSize();
+		glm::vec3 stratum = bsize;
+		stratum /= m_voxelizer.GetData().dimensions;
+
+		m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
+		shader.SetUniform("u_voxels_musked", 0);
+
+		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
+		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+		shader.SetUniform("u_stratum", stratum);
+
+		shader.SetUniform("u_num_samples", 100);
+		shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100);
+		shader.SetUniform("u_average_albedo", 0.5f);
+
+		for (u32 i = 0; i < m_bounces; i++)
+		{
+			write_buffer->Bind();
+
+			glCall(glViewport(0, 0, write_buffer->Width(), write_buffer->Height()));
+			glCall(glDisable(GL_DEPTH_TEST));
+
+			m_active_cachingBuffer->BindColorTexture(0, 7);
+			m_active_cachingBuffer->BindColorTexture(1, 8);
+			m_active_cachingBuffer->BindColorTexture(2, 9);
+			m_active_cachingBuffer->BindColorTexture(3, 10);
+			m_active_cachingBuffer->BindColorTexture(4, 11);
+			m_active_cachingBuffer->BindColorTexture(5, 12);
+			m_active_cachingBuffer->BindColorTexture(6, 13);
+
+			shader.SetUniform("caching_data[0]", 7);
+			shader.SetUniform("caching_data[1]", 8);
+			shader.SetUniform("caching_data[2]", 9);
+			shader.SetUniform("caching_data[3]", 10);
+			shader.SetUniform("caching_data[4]", 11);
+			shader.SetUniform("caching_data[5]", 12);
+			shader.SetUniform("caching_data[6]", 13);
+
+			shader.Bind();
+			mesh.m_vertexArray.Bind();
+			mesh.m_indexBuffer.Bind();
+
+			glDrawElementsInstanced(GL_TRIANGLES, mesh.m_indexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr, write_buffer->Depth());
+
+			std::swap(write_buffer, m_active_cachingBuffer);
+		}
+
+		mesh.m_vertexArray.UnBind();
+		mesh.m_indexBuffer.UnBind();
+
+		shader.UnBind();
+
+		write_buffer->UnBind();
+		m_active_cachingBuffer->UnBind();
+
 	}
 }
 
