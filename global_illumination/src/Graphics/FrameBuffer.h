@@ -15,10 +15,12 @@ namespace GL
 	class FrameBuffer
 	{
 	public:
-		FrameBuffer(u32 width, u32 height, u32 depth, u32 colorAttachmentCount,
+		FrameBuffer(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, 
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter,
 			TextureFormat format = TextureFormat::RGBA32F);
 
-		FrameBuffer(u32 width, u32 height, u32 colorAttachmentCount, 
+		FrameBuffer(u32 width, u32 height, u32 colorAttachmentCount,
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter,
 			TextureFormat format = TextureFormat::RGBA32F, FrameBufferMode fbt = FrameBufferMode::ColorAttachment);
 		~FrameBuffer();
 
@@ -41,11 +43,15 @@ namespace GL
 		u32 Height() const;
 		u32 Depth() const;
 	private:
-		void InitColorAttachmentMode(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
-		void InitColorAttachmentMode3D(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, TextureFormat format);
+		void InitColorAttachmentMode(u32 width, u32 height, u32 colorAttachmentCount, 
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format);
+		void InitColorAttachmentMode3D(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, 
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format);
 
-		void InitLayered(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
-		void InitTexture3D(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format);
+		void InitLayered(u32 width, u32 height, u32 colorAttachmentCount, 
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format);
+		void InitTexture3D(u32 width, u32 height, u32 colorAttachmentCount, 
+			TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format);
 
 		u32 CheckColorAttachmentNumber(u32 colorAttachmentCount);
 	private:

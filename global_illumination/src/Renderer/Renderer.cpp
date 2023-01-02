@@ -14,7 +14,7 @@ namespace GL
 	Renderer::Renderer(const RendererParameters& params)
 		:
 		m_parameters(params),
-		m_shading_buffer(params.window_width, params.window_height, 1),
+		m_shading_buffer(params.window_width, params.window_height, 1, TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST),
 		m_global_illumination(params.gi_params)
 	{
 
@@ -54,10 +54,9 @@ namespace GL
 		m_geometry_stratagy->ClearFrameBuffer();
 		scene.Draw(*m_geometry_stratagy, proj, view);
 
-		PreviewPass(m_geometry_stratagy->GetFrameBuffer(), proj * view);
-
 		m_global_illumination.PreDraw(scene);
-		
+		PreviewPass_voxels(m_geometry_stratagy->GetFrameBuffer(), proj * view);
+	
 		m_global_illumination.Draw(scene, m_shading_buffer, m_geometry_stratagy->GetFrameBuffer(),
 			proj, view, m_parameters.background_color);
 
@@ -192,7 +191,7 @@ namespace GL
 		post_process_shader.UnBind();
 	}
 
-	void Renderer::PreviewPass(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view)
+	void Renderer::PreviewPass_voxels(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view)
 	{
 		if (m_show_voxels)
 		{

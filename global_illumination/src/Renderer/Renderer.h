@@ -50,7 +50,7 @@ namespace GL
 
 		GlobalIllumination m_global_illumination;
 	private:
-		void PreviewPass(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view);
+		void PreviewPass_voxels(const FrameBuffer& geometryBuffer, const glm::mat4& proj_view);
 
 		// for previews
 		PreviewRenderer m_preview;
@@ -85,7 +85,7 @@ namespace GL
 
 		Preview m_active_preview = FINAL_OUTPUT;
 
-		bool m_musked = false;
+		bool m_musked = true;
 		bool m_show_voxels = false;
 		bool m_show_all = false;
 	};

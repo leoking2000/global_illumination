@@ -87,6 +87,13 @@ public:
             window.SetWindowTitle("FPS: " + std::to_string((int)glm::round(1 / dt)));
         }
 
+        if (window.KeyIsPress(KEY_E))
+        {
+            scene.light.m_pos = scene.camera.pos;
+            scene.light.m_dir = scene.camera.dir;
+        }
+
+
         if (window.KeyIsPress(KEY_ESCAPE))
         {
             window.CloseWindow();

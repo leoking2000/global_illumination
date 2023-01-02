@@ -10,9 +10,12 @@ namespace GL
 	Voxelizer::Voxelizer(const VoxelizerParameters& params)
 		:
 		m_data(params.center, params.size),
-		m_merge_voxels((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1, TextureFormat::RGBA32UI),
-		m_voxels_dilated((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1, TextureFormat::RGBA32UI),
-		m_grid_buffer((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, (u32)m_data.dimensions.z, 
+		m_merge_voxels((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
+			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI),
+		m_voxels_dilated((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
+			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI),
+		m_grid_buffer((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, (u32)m_data.dimensions.z,
+			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
 			TextureFormat::RGBA32F, FrameBufferMode::Texture3D)
 	{
 
@@ -42,7 +45,7 @@ namespace GL
 		MergeStep();
 		DilationStep();
 
-		GridCreationStage();
+		//GridCreationStage();
 	}
 
 	const FrameBuffer& Voxelizer::GetVoxels(bool musked) const

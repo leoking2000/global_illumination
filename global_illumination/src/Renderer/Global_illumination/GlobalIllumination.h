@@ -6,8 +6,8 @@ namespace GL
 	struct GlobalIlluminationParameters
 	{
 		VoxelizerParameters voxelizer_params;
-		const u32 rsm_resoulution = 1024 * 2;
-		u32 bounces = 1;
+		const u32 rsm_resoulution = u32(1024);
+		u32 bounces = 3;
 	};
 
 	class GlobalIllumination
@@ -35,6 +35,9 @@ namespace GL
 		// Caching
 		FrameBuffer m_cachingBuffer;
 		u32 m_caching_shader;
+
+		// bounces
+		u32 m_bounces;
 
 		// Reconstruction
 		u32 m_reconstruction_shader;

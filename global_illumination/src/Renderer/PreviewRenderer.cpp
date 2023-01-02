@@ -16,9 +16,15 @@ namespace GL
 	{
 		geometryBuffer.Bind();
 
-		glCall(glDisable(GL_BLEND));
-		glCall(glDisable(GL_CULL_FACE));
+		glCall(glViewport(0, 0, geometryBuffer.Width(), geometryBuffer.Height()));
+
 		glCall(glEnable(GL_DEPTH_TEST));
+		glCall(glDepthFunc(GL_LEQUAL));
+		glCall(glClearDepth(1.0f));
+
+		glCall(glEnable(GL_CULL_FACE));
+		glCall(glCullFace(GL_BACK));
+		glCall(glFrontFace(GL_CCW));
 
 		ShaderProgram& shader = *AssetManagement::GetShader(m_PreviewCubesShader);
 		Mesh& mesh = *AssetManagement::GetMesh(m_cube);

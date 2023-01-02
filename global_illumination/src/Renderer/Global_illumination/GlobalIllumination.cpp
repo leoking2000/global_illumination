@@ -11,8 +11,8 @@ namespace GL
 		m_params(params),
 		m_voxelizer(m_params.voxelizer_params),
 		m_cachingBuffer(
-			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z,
-			7, TextureFormat::RGBA32F)
+			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
+			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F)
 	{
 
 	}
@@ -23,7 +23,7 @@ namespace GL
 
 		m_rsm_stratagy = std::unique_ptr<DrawStrategy>(
 			new GeometryDrawStratagy(
-				FrameBuffer(m_params.rsm_resoulution, m_params.rsm_resoulution, 3),
+				FrameBuffer(m_params.rsm_resoulution, m_params.rsm_resoulution, 3, TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR),
 				AssetManagement::CreateShader("GI/rsm_generation"),
 				[&](ShaderProgram& shader) {
 				scene.light.SetUniforms(shader);
@@ -146,6 +146,7 @@ namespace GL
 		shader.SetUniform("u_voxels_musked", 0);
 
 		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
+		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
 		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 
 		const glm::vec3& bsize = m_voxelizer.GetData().voxelizationArea.GetSize();

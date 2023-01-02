@@ -39,10 +39,7 @@ uniform mat4 u_light_projection_view;
 uniform sampler2D u_shadowMap;
 uniform float u_shadow_bias;
 
-// matrices
-uniform mat4 u_projection_view_inv;
-uniform mat4 u_view_inv;
-
+// caching
 uniform sampler3D caching_data[7];
 
 uniform ivec3 u_size;
@@ -52,29 +49,6 @@ uniform vec3 u_bbox_max;
 /**********************************
     CACHING
 ***********************************/
-
-vec3 PointCSS2WCS(in vec3 p_ccs)
-{
-    vec4 p_wcs = u_projection_view_inv * vec4(p_ccs,1.0);
-    return p_wcs.xyz/p_wcs.w;
-}
-
-vec3 normal_decode_spheremap1(vec2 pixel)
-{
-    vec2 fenc = pixel*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec3 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
-}
-
-vec3 VectorECS2WCS(in vec3 v_ecs)
-{
-    vec4 v_wcs = u_view_inv * vec4(v_ecs,0);
-    return v_wcs.xyz;
-}
 
 vec3 dotSH (in vec3 direction, in vec3 L00,
                  in vec3 L1_1, in vec3 L10, in vec3 L11,
@@ -244,8 +218,9 @@ vec3 DoLightingCalculations(vec3 albedo, vec3 pos, vec3 normal, vec3 mask,float 
     float NdotL = max(dot(normal, surfToLight), 0.0);
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
-    gi_diffuse_color = max(gi_diffuse_color, vec3(0));
     gi_diffuse_color *= Lo;
+    gi_diffuse_color *= 0.25;
+    gi_diffuse_color = max(gi_diffuse_color, vec3(0));
 
     vec3 color = (Lo * shadow_value * intensity) + gi_diffuse_color;
 
@@ -263,7 +238,7 @@ void main(void)
     vec3 gi_diffuse_color = vec3(0.0,0.0,0.0);
 
     vec3 pos_wcs = texture(u_tex_pos, uv).xyz;
-    vec3 normal_wcs = texture(u_tex_normal, uv).xyz;
+    vec3 normal_wcs = normalize(texture(u_tex_normal, uv).xyz);
 
     vec3 extents = u_bbox_max - u_bbox_min;
     vec3 sz = textureSize(caching_data[0], 0);
@@ -285,15 +260,11 @@ void main(void)
         D[i] = normalize(D[i] / normalized_extents);
     }
 
-        int total = 0;
+
     for (int i = 0; i < 4; i++)
     {
         vec3 sdir = normal_wcs * D[i].x + v_1 * D[i].y + v_2 * D[i].z;
         vec3 uvw_new = (0.1*normal_wcs + sdir)/sz + uvw;
-        
-        vec3 crc_pos = u_bbox_min + uvw_new * extents;
-
-        vec3 path = crc_pos - pos_wcs;
 
         vec3 sample_irradiance = vec3(0);
 
@@ -319,8 +290,6 @@ void main(void)
 
         gi_diffuse_color += sample_irradiance;
     }
-
-    gi_diffuse_color *= 0.25;
 
     vec3 albedo = texture(u_tex_albedo, uv).rgb;
     vec3 mask = texture(u_tex_mask, uv).rgb;

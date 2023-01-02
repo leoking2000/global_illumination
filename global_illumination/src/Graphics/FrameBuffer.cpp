@@ -4,23 +4,26 @@
 
 namespace GL
 {
-    FrameBuffer::FrameBuffer(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, TextureFormat format)
+    FrameBuffer::FrameBuffer(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format)
     {
-        InitColorAttachmentMode3D(width, height, depth, colorAttachmentCount, format);
+        InitColorAttachmentMode3D(width, height, depth, colorAttachmentCount, min_filter, mag_filter, format);
     }
 
-    FrameBuffer::FrameBuffer(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format, FrameBufferMode fbt)
+    FrameBuffer::FrameBuffer(u32 width, u32 height, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter,
+        TextureFormat format, FrameBufferMode fbt)
     {
         switch (fbt)
         {
         case GL::FrameBufferMode::ColorAttachment:
-            InitColorAttachmentMode(width, height, colorAttachmentCount, format);
+            InitColorAttachmentMode(width, height, colorAttachmentCount, min_filter, mag_filter, format);
             break;
         case GL::FrameBufferMode::Layered:
-            InitLayered(width, height, colorAttachmentCount, format);
+            InitLayered(width, height, colorAttachmentCount, min_filter, mag_filter, format);
             break;
         case GL::FrameBufferMode::Texture3D:
-            InitTexture3D(width, height, colorAttachmentCount, format);
+            InitTexture3D(width, height, colorAttachmentCount, min_filter, mag_filter, format);
             break;
         }
     }
@@ -158,7 +161,8 @@ namespace GL
         return m_depth;
     }
 
-    void FrameBuffer::InitColorAttachmentMode(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format)
+    void FrameBuffer::InitColorAttachmentMode(u32 width, u32 height, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format)
     {
         m_width = width;
         m_height = height;
@@ -172,7 +176,7 @@ namespace GL
         for (u8 i = 0; i < colorAttachmentCount; i++)
         {
             Texture& tex = m_color_attachments.emplace_back(DIM_2D, Texture::TexSize(m_width, m_height, 0), format,
-                TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
+                min_filter, mag_filter,
                 TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)0u
             );
 
@@ -190,7 +194,8 @@ namespace GL
         CheckFramebufferStatus(m_id);
     }
 
-    void FrameBuffer::InitColorAttachmentMode3D(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, TextureFormat format)
+    void FrameBuffer::InitColorAttachmentMode3D(u32 width, u32 height, u32 depth, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format)
     {
         m_width = width;
         m_height = height;
@@ -204,7 +209,7 @@ namespace GL
         for (u8 i = 0; i < colorAttachmentCount; i++)
         {
             Texture& tex = m_color_attachments.emplace_back(DIM_3D, Texture::TexSize(m_width, m_height, m_depth), format,
-                TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
+                min_filter, mag_filter,
                 TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)0u
             );
 
@@ -224,7 +229,8 @@ namespace GL
         CheckFramebufferStatus(m_id);
     }
 
-    void FrameBuffer::InitLayered(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format)
+    void FrameBuffer::InitLayered(u32 width, u32 height, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format)
     {
         m_width = width;
         m_height = height;
@@ -236,7 +242,7 @@ namespace GL
         colorAttachmentCount = CheckColorAttachmentNumber(colorAttachmentCount);
 
         Texture& tex = m_color_attachments.emplace_back(DIM_2D_ARRAY, Texture::TexSize(m_width, m_height, colorAttachmentCount), format,
-            TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
+            min_filter, mag_filter,
             TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)0u
         );
 
@@ -246,7 +252,8 @@ namespace GL
         CheckFramebufferStatus(m_id);
     }
 
-    void FrameBuffer::InitTexture3D(u32 width, u32 height, u32 colorAttachmentCount, TextureFormat format)
+    void FrameBuffer::InitTexture3D(u32 width, u32 height, u32 colorAttachmentCount, 
+        TextureMinFiltering min_filter, TextureMagFiltering mag_filter, TextureFormat format)
     {
         m_width = width;
         m_height = height;
@@ -256,7 +263,7 @@ namespace GL
         glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_id));
 
         Texture& tex = m_color_attachments.emplace_back(DIM_3D, Texture::TexSize(m_width, m_height, m_depth), format,
-            TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
+            min_filter, mag_filter,
             TextureWrapping::CLAMP_TO_EDGE, TextureWrapping::CLAMP_TO_EDGE, (u8*)0u
         );
 

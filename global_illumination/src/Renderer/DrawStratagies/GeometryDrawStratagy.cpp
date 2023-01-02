@@ -14,7 +14,7 @@ namespace GL
 
 	GL::GeometryDrawStratagy::GeometryDrawStratagy(u32 width, u32 height)
 		:
-		m_geometry_buffer(width, height, 4),
+		m_geometry_buffer(width, height, 4, TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST),
 		m_setExtraUniforms([](ShaderProgram&) {})
 	{
 		static bool shader_created = false;

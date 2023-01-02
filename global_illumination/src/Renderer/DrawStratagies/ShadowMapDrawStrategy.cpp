@@ -7,7 +7,7 @@ namespace GL
 {
 	ShadowMapDrawStrategy::ShadowMapDrawStrategy(u32 shadowMapSize)
 		:
-		m_shadow_map(shadowMapSize, shadowMapSize, 0)
+		m_shadow_map(shadowMapSize, shadowMapSize, 0,TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST)
 	{
 		static bool shader_created = false;
 		if (!shader_created) {

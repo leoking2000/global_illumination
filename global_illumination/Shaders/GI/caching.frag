@@ -12,6 +12,7 @@ flat in int vCurrentLayer;
 // voxel
 uniform usampler2D u_voxels_musked;
 uniform ivec3 u_size;
+uniform vec3 u_bbox_max;
 uniform vec3 u_bbox_min;
 uniform vec3 u_stratum;
 uniform vec3 u_occlusion_bextents;
@@ -143,7 +144,7 @@ void main()
         // get the position of the projected sample, its color and its normal in WCS
         vec3 s_pos = texture(u_RSM_pos, uv).xyz;
         vec3 s_flux = texture(u_RSM_flux, uv).rgb;
-        vec3 s_normal = texture(u_RSM_normal, uv).xyz;
+        vec3 s_normal = normalize(texture(u_RSM_normal, uv).xyz);
 
         // get a random position in wcs
         // pos_wcs is located at the center of the voxel and the samples are in the range of [0,1]
@@ -177,14 +178,14 @@ void main()
         vec3 sample_pos;
         vec3 voxel_pos;
         int cur_i = -1;
-        
+
         for (int j = 0; j < NUM_OCCLUSION_SAMPLES; j++)
         {
-            sample_pos = start_pos + j * voxel_marching_step;
+            sample_pos = start_pos + j * voxel_marching_step - 0.1 * voxel_marching_dir;
             voxel_pos = (sample_pos - u_bbox_min) / u_occlusion_bextents;
-    
+
             uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
-            uint voxel_z = uint(128 - floor((voxel_pos.z * 128) + 0.0) - 1);
+            uint voxel_z = uint(u_size.z - floor((voxel_pos.z * u_size.z) + 0.0) - 1);
 
             // get an unsigned vec4 containing the current position (marked as 1)
             uvec4 slicePos = uvec4(0u);
@@ -197,8 +198,7 @@ void main()
             if ((res.r | res.g | res.b | res.a) > 0u) 
             {
                 vis = 0.0;
-                j = NUM_OCCLUSION_SAMPLES;
-                //break;
+                break;
             }
         }
 
