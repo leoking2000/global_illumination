@@ -9,8 +9,7 @@ public:
         :
         GL::Application(params)
     {
-        SetUpSceneFactory();
-        //SetUpSceneGITest1();
+
     }
 
     void SetUpSceneFactory()
@@ -19,6 +18,7 @@ public:
 
         //u32 main = GL::AssetManagement::LoadFromObjFile("\\level1\\level1.obj");
         u32 main = GL::AssetManagement::LoadFromObjFile("\\factory\\factory.obj");
+        //u32 main = GL::AssetManagement::LoadFromObjFile("\\sponza\\sponza_dualcolor.obj");
 
         GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
 
@@ -67,6 +67,8 @@ public:
 
     void GameSetUp() override
     {        
+        SetUpSceneFactory();
+        //SetUpSceneGITest1();
         LOGINFO("Starting Test Game!!!");
     }
 

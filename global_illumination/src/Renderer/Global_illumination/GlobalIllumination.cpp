@@ -3,6 +3,7 @@
 #include "AssetManagement/AssetManagement.h"
 #include "Renderer/DrawStratagies/GeometryDrawStratagy.h"
 #include "Global/RandomNumbers.h"
+#include "imgui/imgui.h"
 #include <algorithm>
 
 namespace GL
@@ -56,7 +57,7 @@ namespace GL
 		CachingStep(scene);
 
 		// bounce
-		BounceStep();
+		//BounceStep();
 
 		// blend
 	}
@@ -138,6 +139,20 @@ namespace GL
 		return m_rsm_stratagy->GetFrameBuffer();
 	}
 
+	void GlobalIllumination::ImGui()
+	{
+		if (ImGui::CollapsingHeader("Global Illumination"))
+		{
+			ImGui::Text("Caching Step");
+			ImGui::SliderInt("RSM Samples", &m_num_RSM_samples, 0, 200);
+			ImGui::DragFloat("Spread", &m_spread, 0.001f, 0, 2);
+			ImGui::Checkbox("Occlusion Enable", &m_occlusion_enable);
+			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 20);
+
+			ImGui::Text("Bounces Step");
+		}
+	}
+
 	void GlobalIllumination::CachingStep(Scene& scene)
 	{
 		m_cachingBuffer.Bind();
@@ -150,42 +165,51 @@ namespace GL
 		ShaderProgram& shader = *AssetManagement::GetShader(m_caching_shader);
 		Mesh& mesh = *AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad);
 
+		// Voxels
 		m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
+
+		const glm::ivec3 size = glm::ivec3(m_voxelizer.GetData().dimensions);
+		const glm::vec3 bbox_max = m_voxelizer.GetData().voxelizationArea.GetMax();
+		const glm::vec3 bbox_min = m_voxelizer.GetData().voxelizationArea.GetMin();
+		const glm::vec3 bextents = bbox_max - bbox_min;
+
+		glm::vec3 stratum = bextents;
+		stratum /= size;
+
 		shader.SetUniform("u_voxels_musked", 0);
-
-		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
-		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
-		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
-
-		const glm::vec3& bsize = m_voxelizer.GetData().voxelizationArea.GetSize();
-		glm::vec3 stratum = bsize;
-		stratum /= glm::ivec3(m_voxelizer.GetData().dimensions);
+		shader.SetUniform("u_size", size);
+		shader.SetUniform("u_bbox_max", bbox_max);
+		shader.SetUniform("u_bbox_min", bbox_min);
 		shader.SetUniform("u_stratum", stratum);
+		shader.SetUniform("u_occlusion_bextents", bextents);
 
-		glm::vec3 voxelizer_bmin = m_voxelizer.GetData().voxelizationArea.GetMin();
-		glm::vec3 voxelizer_bmax = m_voxelizer.GetData().voxelizationArea.GetMax();
-		glm::vec3 voxelizer_bextents = voxelizer_bmax - voxelizer_bmin;
-		shader.SetUniform("u_occlusion_bextents", voxelizer_bextents);
-
-
-		GetRSMBuffer().BindColorTexture(0, 1);
-		shader.SetUniform("u_RSM_flux", 1);
-
-		GetRSMBuffer().BindColorTexture(1, 2);
-		shader.SetUniform("u_RSM_pos", 2);
-
+		// RSM
+		GetRSMBuffer().BindDepthTexture(1);
+		GetRSMBuffer().BindColorTexture(0, 2);
 		GetRSMBuffer().BindColorTexture(2, 3);
+
+		shader.SetUniform("u_RSM_depth", 1);
+		shader.SetUniform("u_RSM_flux", 2);
 		shader.SetUniform("u_RSM_normal", 3);
+		
+		// Light
+		glm::mat4 light_mvp = scene.light.LightProj() * scene.light.LightView();
+		glm::mat4 light_mvp_inv = glm::inverse(light_mvp);
 
 		shader.SetUniform("u_light_pos", scene.light.m_pos);
 		shader.SetUniform("u_light_dir", scene.light.m_dir);
-		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
+		shader.SetUniform("u_light_projection_view", light_mvp);
+		shader.SetUniform("u_light_projection_view_inv", light_mvp_inv);
 
-		shader.SetUniform("u_spread", 1.0f);
-		shader.SetUniform("u_num_samples", 33);
+		// settings
+		shader.SetUniform("u_spread", m_spread);
+		shader.SetUniform("u_num_RSM_samples", m_num_RSM_samples);
+		shader.SetUniform("u_occlusion_enable", (u32)m_occlusion_enable);
+		shader.SetUniform("u_num_occlusion_samples", m_num_occlusion_sample);
 
-		shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), 33);
-		shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 33);
+		// random
+		shader.SetUniform("u_samples_2d", RandomNumbers::GetHaltonSequence2D(), m_num_RSM_samples);
+		shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), m_num_RSM_samples);
 
 		shader.Bind();
 
@@ -200,6 +224,8 @@ namespace GL
 		shader.UnBind();
 
 		m_cachingBuffer.UnBind();
+
+		m_active_cachingBuffer = &m_cachingBuffer;
 	}
 
 	void GlobalIllumination::BounceStep()
@@ -213,18 +239,6 @@ namespace GL
 		glm::vec3 bsize = m_voxelizer.GetData().voxelizationArea.GetSize();
 		glm::vec3 stratum = bsize;
 		stratum /= m_voxelizer.GetData().dimensions;
-
-		m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
-		shader.SetUniform("u_voxels_musked", 0);
-
-		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
-		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
-		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
-		shader.SetUniform("u_stratum", stratum);
-
-		shader.SetUniform("u_num_samples", 100);
-		shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100);
-		shader.SetUniform("u_average_albedo", 0.5f);
 
 		for (u32 i = 0; i < m_bounces; i++)
 		{
@@ -248,6 +262,18 @@ namespace GL
 			shader.SetUniform("caching_data[4]", 11);
 			shader.SetUniform("caching_data[5]", 12);
 			shader.SetUniform("caching_data[6]", 13);
+
+			m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
+			shader.SetUniform("u_voxels_musked", 0);
+
+			shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
+			shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+			shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+			shader.SetUniform("u_stratum", stratum);
+
+			shader.SetUniform("u_num_samples", 100);
+			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100);
+			shader.SetUniform("u_average_albedo", 0.5f);
 
 			shader.Bind();
 			mesh.m_vertexArray.Bind();

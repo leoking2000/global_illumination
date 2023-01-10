@@ -219,7 +219,7 @@ vec3 DoLightingCalculations(vec3 albedo, vec3 pos, vec3 normal, vec3 mask,float 
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
     gi_diffuse_color *= Lo;
-    gi_diffuse_color *= 0.25;
+    gi_diffuse_color *= 0.15;
     gi_diffuse_color = max(gi_diffuse_color, vec3(0));
 
     vec3 color = (Lo * shadow_value * intensity) + gi_diffuse_color;

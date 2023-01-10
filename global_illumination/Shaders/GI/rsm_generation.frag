@@ -48,15 +48,6 @@ vec4 GetAlbedo()
 
 vec3 CalculateNormal()
 {
-    if(u_HasNormalMap > 0)
-    {
-        vec3 nmap = texture(u_normalMap, tex_cord).rgb;
-        nmap = nmap * 2.0 - 1.0;
-        vec3 normal = normalize(TBN * nmap);
-
-        return normal;
-    }
-
     return normalize(TBN[2]);
 }
 
@@ -70,17 +61,17 @@ vec3 CalculateSurfToLight(vec3 pos)
 	return normalize(u_light.pos - pos);
 }
 
-vec3 CalculateFlux(vec3 albedo, vec3 pos)
+vec3 CalculateFlux(vec3 pos)
 {
     if(u_light.type == 0){
-        return u_light.radiance * albedo;
+        return u_light.radiance;
     }
 
     float theta = dot(CalculateSurfToLight(pos), normalize(-u_light.dir));
-	float epsilon   = u_light.cutOff - u_light.outerCutOff;
-	float intensity = clamp((theta - u_light.outerCutOff) / epsilon, 0.0, 1.0);
+    float epsilon   = u_light.cutOff - u_light.outerCutOff;
+    float intensity = clamp((theta - u_light.outerCutOff) / epsilon, 0.0, 1.0);
 
-    return u_light.radiance * albedo * intensity;
+    return u_light.radiance * intensity;
 }
 
 void main()
@@ -89,7 +80,7 @@ void main()
 
     if(albedo.a == 0.0) discard;
 
-    out_flux = vec4(CalculateFlux(albedo.rgb, position), 1);
+    out_flux = vec4(CalculateFlux(position), 1);
     out_pos = vec4(position, 1);
     out_normal = vec4(CalculateNormal(), 1);
 }

@@ -18,7 +18,7 @@ uniform vec3 u_stratum;
 uniform vec3 u_occlusion_bextents;
 
 // RSM
-uniform sampler2D u_RSM_pos;
+uniform sampler2D u_RSM_depth;
 uniform sampler2D u_RSM_flux;
 uniform sampler2D u_RSM_normal;
 
@@ -26,11 +26,13 @@ uniform sampler2D u_RSM_normal;
 uniform vec3 u_light_pos;
 uniform vec3 u_light_dir;
 uniform mat4 u_light_projection_view;
+uniform mat4 u_light_projection_view_inv;
 
 // settings
-uniform int u_num_samples;
+uniform int u_num_RSM_samples;
 uniform float u_spread;
-#define NUM_OCCLUSION_SAMPLES 5
+uniform uint u_occlusion_enable;
+uniform int u_num_occlusion_samples;
 
 // random 
 uniform vec2 u_samples_2d[200];
@@ -127,7 +129,7 @@ void main()
     vec2 l_uv = ShadowProjection(pos_wcs);
 
     float stratum_length = length(u_stratum);
-    ivec2 rsm_size = textureSize(u_RSM_flux, 0);
+    ivec2 rsm_size = textureSize(u_RSM_depth, 0);
     float inv_pdf = rsm_size.x * rsm_size.y * u_spread * u_spread;
 
     // clamp the sampling center based on the spread parameter
@@ -136,15 +138,20 @@ void main()
     // to coincide with the sample origin
     uv_c -= (0.5 * vec2(u_spread));
 
-    for (int i = 0; i < u_num_samples; ++i)
+    for (int i = 0; i < u_num_RSM_samples; ++i)
     {
         // get a random RSM sample in uv coordinates and project it in the RSM depth buffervs
         vec2 uv = uv_c + u_samples_2d[i] * u_spread;
 
         // get the position of the projected sample, its color and its normal in WCS
-        vec3 s_pos = texture(u_RSM_pos, uv).xyz;
         vec3 s_flux = texture(u_RSM_flux, uv).rgb;
         vec3 s_normal = normalize(texture(u_RSM_normal, uv).xyz);
+
+        float depth = texture(u_RSM_depth, uv).r;
+        vec4 pos_LCS = vec4 (vec3(uv.xy, depth) * 2.0 - 1.0, 1.0);
+        pos_LCS = u_light_projection_view_inv * pos_LCS;
+        vec3 s_pos = pos_LCS.xyz/pos_LCS.w;
+        s_pos += 0.5 * s_normal;
 
         // get a random position in wcs
         // pos_wcs is located at the center of the voxel and the samples are in the range of [0,1]
@@ -159,50 +166,51 @@ void main()
         float dotprod = max(dot(dir, s_normal), 0.0);
         if (dotprod < 0.07) continue;
 
-        // OCCLUSION
-
         float vis = 1.0;
-        // number of intermediate steps
-        // create a jittered offset in the range of [0, 1]
-        vec3 voxel_marching_dir = normalize(s_pos - p);
-        vec3 occlusion_jitter = voxel_marching_dir * u_samples_2d[i].x * stratum_length * 0.5;
-        vec3 offset = voxel_marching_dir * stratum_length;
-        // fix for the case where the distance to the RSM is smaller than the offset. 0.4 is similar to 1.0 / 2.5 (total offsets)
-        float length_offset = min(length(s_pos - p) * 0.4, length(offset));
-        offset = normalize(offset) * length_offset;
-        vec3 start_pos = p + offset + occlusion_jitter;
-        vec3 end_pos = s_pos - offset;
-        vec3 voxel_marching_step = voxel_marching_dir;
-        voxel_marching_step *= length(end_pos - start_pos) / (NUM_OCCLUSION_SAMPLES - 1);
-        vec2 texelStep = vec2(0.0) / textureSize(u_voxels_musked, 0);
-        vec3 sample_pos;
-        vec3 voxel_pos;
-        int cur_i = -1;
-
-        for (int j = 0; j < NUM_OCCLUSION_SAMPLES; j++)
+        // OCCLUSION
+        if(u_occlusion_enable != 0u)
         {
-            sample_pos = start_pos + j * voxel_marching_step - 0.1 * voxel_marching_dir;
-            voxel_pos = (sample_pos - u_bbox_min) / u_occlusion_bextents;
+            // number of intermediate steps
+            // create a jittered offset in the range of [0, 1]
+            vec3 voxel_marching_dir = normalize(s_pos - p);
+            vec3 occlusion_jitter = voxel_marching_dir * u_samples_2d[i].x * stratum_length * 0.5;
+            vec3 offset = voxel_marching_dir * stratum_length;
+            // fix for the case where the distance to the RSM is smaller than the offset. 0.4 is similar to 1.0 / 2.5 (total offsets)
+            float length_offset = min(length(s_pos - p) * 0.4, length(offset));
+            offset = normalize(offset) * length_offset;
+            vec3 start_pos = p + offset + occlusion_jitter;
+            vec3 end_pos = s_pos - offset;
+            vec3 voxel_marching_step = voxel_marching_dir;
+            voxel_marching_step *= length(end_pos - start_pos) / (u_num_occlusion_samples - 1);
+            vec2 texelStep = vec2(0.0) / textureSize(u_voxels_musked, 0);
+            vec3 sample_pos;
+            vec3 voxel_pos;
+            int cur_i = -1;
 
-            uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
-            uint voxel_z = uint(u_size.z - floor((voxel_pos.z * u_size.z) + 0.0) - 1);
-
-            // get an unsigned vec4 containing the current position (marked as 1)
-            uvec4 slicePos = uvec4(0u);
-            slicePos[voxel_z / 32u] = 1u << (voxel_z % 32u);
-
-            // use AND to mark whether the current position has been set as occupied
-            uvec4 res = slice & slicePos;
-
-            // check if the current position is marked as occupied
-            if ((res.r | res.g | res.b | res.a) > 0u) 
+            for (int j = 0; j < u_num_occlusion_samples; j++)
             {
-                vis = 0.0;
-                break;
+                sample_pos = start_pos + j * voxel_marching_step - 0.1 * voxel_marching_dir;
+                voxel_pos = (sample_pos - u_bbox_min) / u_occlusion_bextents;
+
+                uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
+                uint voxel_z = uint(u_size.z - floor((voxel_pos.z * u_size.z) + 0.0) - 1);
+
+                // get an unsigned vec4 containing the current position (marked as 1)
+                uvec4 slicePos = uvec4(0u);
+                slicePos[voxel_z / 32u] = 1u << (voxel_z % 32u);
+
+                // use AND to mark whether the current position has been set as occupied
+                uvec4 res = slice & slicePos;
+
+                // check if the current position is marked as occupied
+                if ((res.r | res.g | res.b | res.a) > 0u) 
+                {
+                    vis = 0.0;
+                    break;
+                }
             }
         }
-
-        // end OCCLUSION
+        // end OCCLUSION /*/
 
         float FF = dotprod / float(0.01 + dist * dist);
         vec3 color = vis * s_flux * FF / (3.14159);
@@ -224,10 +232,10 @@ void main()
         SH_22  += sh_22;
     }
 
-    float divsamples = 1.0 / float(u_num_samples);
+    float divsamples = 1.0 / float(u_num_RSM_samples);
 
-    // scale by 1/100 as flux is premultiplied by 100 upon saving in the RSM to avoid truncation errors.
-    float mult = inv_pdf * divsamples * 0.01; 
+    // scale by 1/1000 as flux is premultiplied by 100 upon saving in the RSM to avoid truncation errors.
+    float mult = inv_pdf * divsamples * 0.001;
 
     out_data0       = vec4 (SH_00.r,    SH_00.g,    SH_00.b,    SH_1_1.r)   * mult;
     out_data1       = vec4 (SH_1_1.g,   SH_1_1.b,   SH_10.r,    SH_10.g)    * mult;

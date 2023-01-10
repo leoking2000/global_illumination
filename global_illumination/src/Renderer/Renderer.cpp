@@ -56,7 +56,7 @@ namespace GL
 
 		m_global_illumination.PreDraw(scene);
 		PreviewPass_voxels(m_geometry_stratagy->GetFrameBuffer(), proj * view);
-	
+
 		m_global_illumination.Draw(scene, m_shading_buffer, m_geometry_stratagy->GetFrameBuffer(),
 			proj, view, m_parameters.background_color);
 
@@ -224,10 +224,13 @@ namespace GL
 		if (ImGui::CollapsingHeader("Preview"))
 		{
 			ImGui::ListBox("Previews", (int*)&m_active_preview, m_name_previews, NUMBER_OF_PREVIEWS, 5);
-			ImGui::Checkbox("Musked", &m_musked);
+			//ImGui::Checkbox("Musked", &m_musked);
+			m_musked = true;
 			ImGui::Checkbox("Show Voxels", &m_show_voxels);
 			ImGui::Checkbox("Show All Voxels", &m_show_all);
 		}
+
+		m_global_illumination.ImGui();
 
 		ImGui::End();
 
