@@ -4,11 +4,12 @@
 #include "Renderer/DrawStratagies/GeometryDrawStratagy.h"
 #include "Global/RandomNumbers.h"
 #include "imgui/imgui.h"
+#include "Global/Logger.h"
 #include <algorithm>
 
 namespace GL
 {
-	GlobalIllumination::GlobalIllumination(const GlobalIlluminationParameters& params)
+	GlobalIllumination::GlobalIllumination(const GlobalIlluminationParameters& params, u32 window_width, u32 window_height)
 		:
 		m_params(params),
 		m_voxelizer(m_params.voxelizer_params),
@@ -44,14 +45,11 @@ namespace GL
 		RandomNumbers::Genarate();
 	}
 
-	void GlobalIllumination::PreDraw(Scene& scene)
+	void GlobalIllumination::Draw(Scene& scene,const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
+		const glm::mat4& proj, const glm::mat4& view)
 	{
 		// voxelize
 		m_voxelizer.Voxelize(scene);
-
-		// genarate RSM
-		m_rsm_stratagy->ClearFrameBuffer();
-		scene.Draw(*m_rsm_stratagy, scene.light.LightProj(), scene.light.LightView());
 
 		// caching
 		CachingStep(scene);
@@ -60,78 +58,21 @@ namespace GL
 		//BounceStep();
 
 		// blend
-	}
 
-	void GlobalIllumination::Draw(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer, 
-		const glm::mat4& proj, const glm::mat4& view, const glm::vec3& background_color)
-	{
-		shading_buffer.Bind();
-
-		glCall(glViewport(0, 0, shading_buffer.Width(), shading_buffer.Height()));
-		glCall(glClearColor(background_color.r, background_color.g, background_color.b, 1));
-		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-		glCall(glDisable(GL_DEPTH_TEST));
-
-		geometryBuffer.BindColorTexture(0, 0);
-		geometryBuffer.BindColorTexture(1, 1);
-		geometryBuffer.BindColorTexture(2, 2);
-		geometryBuffer.BindColorTexture(3, 3);
-		geometryBuffer.BindDepthTexture(5);
-
-		ShaderProgram& shader = *AssetManagement::GetShader(m_reconstruction_shader);
-
-		shader.SetUniform("u_tex_albedo", 0);
-		shader.SetUniform("u_tex_pos", 1);
-		shader.SetUniform("u_tex_normal", 2);
-		shader.SetUniform("u_tex_mask", 3);
-		shader.SetUniform("u_tex_depth", 5);
-
-		shader.SetUniform("u_camera_pos", scene.camera.pos);
-		shader.SetUniform("u_camera_dir", scene.camera.dir);
-
-		scene.light.SetUniforms(shader);
-
-		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
-
-		GetRSMBuffer().BindDepthTexture(6);
-		shader.SetUniform("u_shadowMap", 6);
-
-		shader.SetUniform("u_projection_view_inv", glm::inverse(proj * view));
-		shader.SetUniform("u_view_inv", glm::inverse(view));
-
-		assert(m_active_cachingBuffer != nullptr);
-		m_active_cachingBuffer->BindColorTexture(0, 7);
-		m_active_cachingBuffer->BindColorTexture(1, 8);
-		m_active_cachingBuffer->BindColorTexture(2, 9);
-		m_active_cachingBuffer->BindColorTexture(3, 10);
-		m_active_cachingBuffer->BindColorTexture(4, 11);
-		m_active_cachingBuffer->BindColorTexture(5, 12);
-		m_active_cachingBuffer->BindColorTexture(6, 13);
-
-		shader.SetUniform("caching_data[0]", 7);
-		shader.SetUniform("caching_data[1]", 8);
-		shader.SetUniform("caching_data[2]", 9);
-		shader.SetUniform("caching_data[3]", 10);
-		shader.SetUniform("caching_data[4]", 11);
-		shader.SetUniform("caching_data[5]", 12);
-		shader.SetUniform("caching_data[6]", 13);
-
-		shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
-		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
-		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
-
-		shader.Bind();
-
-		AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad)->Draw();
-
-		shader.UnBind();
-		shading_buffer.UnBind();
+		// Reconstruction
+		ReconstructionStep(scene, shading_buffer, geometryBuffer, proj, view);
 	}
 
 	const Voxelizer& GlobalIllumination::GetVoxelizer() const
 	{
 		return m_voxelizer;
+	}
+
+	void GlobalIllumination::DrawRSM(Scene& scene)
+	{
+		// genarate RSM
+		m_rsm_stratagy->ClearFrameBuffer();
+		scene.Draw(*m_rsm_stratagy, scene.light.LightProj(), scene.light.LightView());
 	}
 
 	const FrameBuffer& GlobalIllumination::GetRSMBuffer() const
@@ -150,6 +91,9 @@ namespace GL
 			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 20);
 
 			ImGui::Text("Bounces Step");
+
+			ImGui::Text("Reconstruction");
+			ImGui::DragFloat("factor", &m_factor, 0.001f, 0, 2);
 		}
 	}
 
@@ -293,6 +237,66 @@ namespace GL
 		m_active_cachingBuffer->UnBind();
 
 	}
+
+	void GlobalIllumination::ReconstructionStep(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
+		const glm::mat4& proj, const glm::mat4& view)
+	{
+		glCall(glEnable(GL_BLEND));
+		glBlendFunc(GL_ONE, GL_ONE);
+		glCall(glBlendEquation(GL_FUNC_ADD));
+
+		shading_buffer.Bind();
+
+		glCall(glViewport(0, 0, shading_buffer.Width(), shading_buffer.Height()));
+		glCall(glDisable(GL_DEPTH_TEST));
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_reconstruction_shader);
+
+		geometryBuffer.BindColorTexture(0, 0);
+		geometryBuffer.BindColorTexture(1, 1);
+		geometryBuffer.BindColorTexture(2, 2);
+		geometryBuffer.BindColorTexture(3, 3);
+		geometryBuffer.BindDepthTexture(5);
+
+		shader.SetUniform("u_tex_albedo", 0);
+		shader.SetUniform("u_tex_pos", 1);
+		shader.SetUniform("u_tex_normal", 2);
+		shader.SetUniform("u_tex_mask", 3);
+		shader.SetUniform("u_tex_depth", 5);
+
+		shader.SetUniform("u_proj_view_inv", glm::inverse(proj * view));
+
+		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
+		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+
+		shader.SetUniform("u_factor", m_factor);
+
+		assert(m_active_cachingBuffer != nullptr);
+		m_active_cachingBuffer->BindColorTexture(0, 6);
+		m_active_cachingBuffer->BindColorTexture(1, 7);
+		m_active_cachingBuffer->BindColorTexture(2, 8);
+		m_active_cachingBuffer->BindColorTexture(3, 9);
+		m_active_cachingBuffer->BindColorTexture(4, 10);
+		m_active_cachingBuffer->BindColorTexture(5, 11);
+		m_active_cachingBuffer->BindColorTexture(6, 12);
+
+		shader.SetUniform("u_caching_data[0]", 6);
+		shader.SetUniform("u_caching_data[1]", 7);
+		shader.SetUniform("u_caching_data[2]", 8);
+		shader.SetUniform("u_caching_data[3]", 9);
+		shader.SetUniform("u_caching_data[4]", 10);
+		shader.SetUniform("u_caching_data[5]", 11);
+		shader.SetUniform("u_caching_data[6]", 12);
+
+		shader.Bind();
+		AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad)->Draw();
+		shader.UnBind();
+
+		shading_buffer.UnBind();
+
+		glCall(glDisable(GL_BLEND));
+	}
+
 }
 
 

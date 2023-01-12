@@ -79,15 +79,7 @@ public:
             LOGDEBUG("Delta Time: %f", dt);
         }
 
-        if (window.MouseButtonIsPress(MOUSE_BUTTON_LEFT))
-        {
-            glm::vec2 pos = window.MousePos();
-            window.SetWindowTitle("(" + std::to_string(pos.x) + " , " + std::to_string(pos.y) + ")");
-        }
-        else
-        {
-            window.SetWindowTitle("FPS: " + std::to_string((int)glm::round(1 / dt)));
-        }
+        window.SetWindowTitle("FPS: " + std::to_string((int)glm::round(1 / dt)));
 
         if (window.KeyIsPress(KEY_E))
         {

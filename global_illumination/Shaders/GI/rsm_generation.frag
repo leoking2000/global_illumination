@@ -61,7 +61,7 @@ vec3 CalculateSurfToLight(vec3 pos)
 	return normalize(u_light.pos - pos);
 }
 
-vec3 CalculateFlux(vec3 pos)
+vec3 CalculateFlux(vec3 pos, vec3 albedo)
 {
     if(u_light.type == 0){
         return u_light.radiance;
@@ -71,7 +71,7 @@ vec3 CalculateFlux(vec3 pos)
     float epsilon   = u_light.cutOff - u_light.outerCutOff;
     float intensity = clamp((theta - u_light.outerCutOff) / epsilon, 0.0, 1.0);
 
-    return u_light.radiance * intensity;
+    return u_light.radiance * albedo * intensity;
 }
 
 void main()
@@ -80,7 +80,7 @@ void main()
 
     if(albedo.a == 0.0) discard;
 
-    out_flux = vec4(CalculateFlux(position), 1);
-    out_pos = vec4(position, 1);
-    out_normal = vec4(CalculateNormal(), 1);
+    out_flux = vec4(CalculateFlux(position, albedo.rgb), u_metallic);
+    out_pos = vec4(position, u_roughness);
+    out_normal = vec4(CalculateNormal(), 0);
 }

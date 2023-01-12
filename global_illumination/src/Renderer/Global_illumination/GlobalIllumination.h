@@ -13,23 +13,25 @@ namespace GL
 	class GlobalIllumination
 	{
 	public:
-		GlobalIllumination(const GlobalIlluminationParameters& params);
+		GlobalIllumination(const GlobalIlluminationParameters& params, u32 window_width, u32 window_height);
 
 		GlobalIllumination(const GlobalIllumination&) = delete;
 		GlobalIllumination& operator=(const GlobalIllumination&) = delete;
 	public:
 		void Init(Scene& scene);
-		void PreDraw(Scene& scene);
-		void Draw(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
-			const glm::mat4& proj, const glm::mat4& view, const glm::vec3& background_color);
+		void Draw(Scene& scene,const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
+			const glm::mat4& proj, const glm::mat4& view);
 
 		const Voxelizer& GetVoxelizer() const;
+		void DrawRSM(Scene& scene);
 		const FrameBuffer& GetRSMBuffer() const;
 
 		void ImGui();
 	private:
 		void CachingStep(Scene& scene);
 		void BounceStep();
+		void ReconstructionStep(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
+			const glm::mat4& proj, const glm::mat4& view);
 	private:
 		GlobalIlluminationParameters m_params;
 		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
@@ -50,6 +52,7 @@ namespace GL
 		u32 m_bounces_shader;
 
 		// Reconstruction
+		f32 m_factor = 1.0f;
 		u32 m_reconstruction_shader;
 
 	};

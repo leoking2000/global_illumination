@@ -17,6 +17,9 @@ namespace GL
 		f32 min_z = 0.1f;
 		f32 max_z = 100.0f;
 
+		// lighing
+		glm::vec3 ambient_color = glm::vec3(0.01, 0.012, 0.015);
+
 		GlobalIlluminationParameters gi_params;
 	};
 
@@ -36,12 +39,18 @@ namespace GL
 	private:
 		void UpdateWindowSize(u32 width, u32 height);
 
-		void ShadingPass(const Camera& camera, Scene& scene);
+		void DrawGeometryBuffers(Scene& scene, const glm::mat4& proj, const glm::mat4& view);
+		//void DrawAmbientOcclusion
+		void DrawAmbientLighting(Scene& scene);
+		void DrawDirectLighting(Scene& scene);
+		// DrawTransparency
+		void DrawGlobalIllumination(Scene& scene, const glm::mat4& proj, const glm::mat4& view);
 		void PostProcess();
 	private:
 		RendererParameters m_parameters;
 		std::unique_ptr<DrawStrategy> m_geometry_stratagy;
 
+		u32 m_ambient_shader;
 		u32 m_shading_shader;
 		FrameBuffer m_shading_buffer;
 

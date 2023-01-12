@@ -233,9 +233,7 @@ void main()
     }
 
     float divsamples = 1.0 / float(u_num_RSM_samples);
-
-    // scale by 1/1000 as flux is premultiplied by 100 upon saving in the RSM to avoid truncation errors.
-    float mult = inv_pdf * divsamples * 0.001;
+    float mult = inv_pdf * divsamples * 0.001;/// (rsm_size.x*rsm_size.x);
 
     out_data0       = vec4 (SH_00.r,    SH_00.g,    SH_00.b,    SH_1_1.r)   * mult;
     out_data1       = vec4 (SH_1_1.g,   SH_1_1.b,   SH_10.r,    SH_10.g)    * mult;

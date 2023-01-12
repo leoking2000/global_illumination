@@ -1,7 +1,11 @@
-﻿  GlobalIllumination.cpp
+﻿  Application.cpp
+  GeometryDrawStratagy.cpp
+  GlobalIllumination.cpp
+  Renderer.cpp
+  main.cpp
   Generating code
-  50 of 3470 functions ( 1.4%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    99 functions had inline decision re-evaluated but remain unchanged
+  139 of 3472 functions ( 4.0%) were compiled, the rest were copied from previous compilation.
+    10 functions were new in current compilation
+    147 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Release\global_illumination.exe

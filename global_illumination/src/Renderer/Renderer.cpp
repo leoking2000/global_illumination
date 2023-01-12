@@ -15,7 +15,7 @@ namespace GL
 		:
 		m_parameters(params),
 		m_shading_buffer(params.window_width, params.window_height, 1, TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST),
-		m_global_illumination(params.gi_params)
+		m_global_illumination(params.gi_params, params.window_width, params.window_height)
 	{
 
 	}
@@ -31,6 +31,7 @@ namespace GL
 		m_geometry_stratagy = std::unique_ptr<DrawStrategy>(new GeometryDrawStratagy(m_parameters.window_width, m_parameters.window_height));
 
 		// shaders
+		m_ambient_shader = AssetManagement::CreateShader("Lighting/ambientLight");
 		m_shading_shader = AssetManagement::CreateShader("Lighting/shading_pass");
 		m_post_process_shader = AssetManagement::CreateShader("PostProcess/post_process");
 
@@ -43,26 +44,17 @@ namespace GL
 
 	void Renderer::Render(u32 width, u32 height, Scene& scene)
 	{
-		UpdateWindowSize(width, height);
-
 		glm::mat4 proj = glm::perspective(m_parameters.fov_angle,
 			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
 			m_parameters.min_z, m_parameters.max_z);
-
 		glm::mat4 view = scene.camera.GetCameraView();
 
-		m_geometry_stratagy->ClearFrameBuffer();
-		scene.Draw(*m_geometry_stratagy, proj, view);
+		UpdateWindowSize(width, height);
 
-		m_global_illumination.PreDraw(scene);
-		PreviewPass_voxels(m_geometry_stratagy->GetFrameBuffer(), proj * view);
-
-		m_global_illumination.Draw(scene, m_shading_buffer, m_geometry_stratagy->GetFrameBuffer(),
-			proj, view, m_parameters.background_color);
-
-
-		//ShadingPass(scene.camera, scene);
-
+		DrawGeometryBuffers(scene, proj, view);
+		DrawAmbientLighting(scene);
+		DrawDirectLighting(scene);
+		DrawGlobalIllumination(scene, proj, view);
 		PostProcess();
 	}
 
@@ -79,14 +71,49 @@ namespace GL
 
 	}
 
-	void Renderer::ShadingPass(const Camera& camera, Scene& scene)
+	void Renderer::DrawGeometryBuffers(Scene& scene, const glm::mat4& proj, const glm::mat4& view)
+	{
+		m_geometry_stratagy->ClearFrameBuffer();
+		scene.Draw(*m_geometry_stratagy, proj, view);
+
+		m_global_illumination.DrawRSM(scene);
+
+		PreviewPass_voxels(m_geometry_stratagy->GetFrameBuffer(), proj * view);
+	}
+
+	void Renderer::DrawAmbientLighting(Scene& scene)
 	{
 		m_shading_buffer.Bind();
 
 		glCall(glViewport(0, 0, m_shading_buffer.Width(), m_shading_buffer.Height()));
-		glCall(glClearColor(m_parameters.background_color.r, m_parameters.background_color.g, m_parameters.background_color.b, 1));
-		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		glCall(glDisable(GL_DEPTH_TEST));
 
+		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(0, 0);
+		m_geometry_stratagy->GetFrameBuffer().BindDepthTexture(1);
+
+		ShaderProgram& shader = *AssetManagement::GetShader(m_ambient_shader);
+
+		shader.SetUniform("u_tex_albedo", 0);
+		shader.SetUniform("u_tex_depth", 1);
+		shader.SetUniform("u_ambient_color", m_parameters.ambient_color);
+		shader.SetUniform("u_background_color", m_parameters.background_color);
+
+		shader.Bind();
+		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
+		shader.UnBind();
+
+		m_shading_buffer.UnBind();
+	}
+
+	void Renderer::DrawDirectLighting(Scene& scene)
+	{
+		glCall(glEnable(GL_BLEND));
+		glBlendFunc(GL_ONE, GL_ONE);
+		glCall(glBlendEquation(GL_FUNC_ADD));
+
+		m_shading_buffer.Bind();
+
+		glCall(glViewport(0, 0, m_shading_buffer.Width(), m_shading_buffer.Height()));
 		glCall(glDisable(GL_DEPTH_TEST));
 
 		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(0, 0);
@@ -95,30 +122,37 @@ namespace GL
 		m_geometry_stratagy->GetFrameBuffer().BindColorTexture(3, 3);
 		m_geometry_stratagy->GetFrameBuffer().BindDepthTexture(5);
 
-		ShaderProgram& shading_shader = *AssetManagement::GetShader(m_shading_shader);
 
-		shading_shader.SetUniform("u_tex_albedo", 0);
-		shading_shader.SetUniform("u_tex_pos", 1);
-		shading_shader.SetUniform("u_tex_normal", 2);
-		shading_shader.SetUniform("u_tex_mask", 3);
-		shading_shader.SetUniform("u_tex_depth", 5);
+		ShaderProgram& shader = *AssetManagement::GetShader(m_shading_shader);
 
-		shading_shader.SetUniform("u_camera_pos", camera.pos);
-		shading_shader.SetUniform("u_camera_dir", camera.dir);
-		
-		scene.light.SetUniforms(shading_shader);
+		shader.SetUniform("u_tex_albedo", 0);
+		shader.SetUniform("u_tex_pos", 1);
+		shader.SetUniform("u_tex_normal", 2);
+		shader.SetUniform("u_tex_mask", 3);
+		shader.SetUniform("u_tex_depth", 5);
 
-		shading_shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
+		shader.SetUniform("u_camera_pos", scene.camera.pos);
+		shader.SetUniform("u_camera_dir", scene.camera.dir);
+
+		scene.light.SetUniforms(shader);
+
+		shader.SetUniform("u_light_projection_view", scene.light.LightProj() * scene.light.LightView());
 
 		m_global_illumination.GetRSMBuffer().BindDepthTexture(6);
-		shading_shader.SetUniform("u_shadowMap", 6);
+		shader.SetUniform("u_shadowMap", 6);
 
-		shading_shader.Bind();
-
+		shader.Bind();
 		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
+		shader.UnBind();
 
-		shading_shader.UnBind();
 		m_shading_buffer.UnBind();
+
+		glCall(glDisable(GL_BLEND));
+	}
+
+	void Renderer::DrawGlobalIllumination(Scene& scene, const glm::mat4& proj, const glm::mat4& view)
+	{
+		m_global_illumination.Draw(scene, m_shading_buffer, m_geometry_stratagy->GetFrameBuffer(), proj, view);
 	}
 
 	void Renderer::PostProcess()
@@ -214,6 +248,7 @@ namespace GL
 			ImGui::Text("Window Width: %i", m_parameters.window_width);
 			ImGui::Text("Window Height: %i", m_parameters.window_height);
 			//ImGui::ColorPicker3("Background Color", glm::value_ptr(m_parameters.background_color));
+			ImGui::DragFloat3("Ambient Color", glm::value_ptr(m_parameters.ambient_color));
 			ImGui::DragFloat("FOV angle (in radians)", &m_parameters.fov_angle, 0.01f, 0.0f, 2 * PI);
 			ImGui::InputFloat("Min Z", &m_parameters.min_z);
 			ImGui::InputFloat("Max Z", &m_parameters.max_z);
