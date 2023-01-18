@@ -7,7 +7,7 @@ namespace GL
 	struct VoxelizerParameters
 	{
 		glm::vec3 center = glm::vec3(0.0f, 5.0f, 0.0f);
-		f32 size = 22.0f;
+		f32 size = 30.0f;
 	};
 
 	class Voxelizer
@@ -21,7 +21,7 @@ namespace GL
 		void Init();
 		void Voxelize(Scene& scene);
 
-		const FrameBuffer& GetVoxels(bool musked) const;
+		const FrameBuffer& GetVoxels() const;
 		const VoxelizerData& GetData() const;
 
 		u32 m_screen_filled_quad;
@@ -29,7 +29,6 @@ namespace GL
 		void ThreeWayStep(Scene& scene);
 		void MergeStep();
 		void DilationStep();
-		void GridCreationStage();
 	private:
 		VoxelizerData m_data;
 
@@ -40,10 +39,5 @@ namespace GL
 
 		FrameBuffer m_voxels_dilated;
 		u32 m_dilationShader;
-
-		FrameBuffer m_grid_buffer;
-		u32 m_grid_shader;
-
-		u32 m_previewSpheresShader;
 	};
 }

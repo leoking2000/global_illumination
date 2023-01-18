@@ -16,7 +16,8 @@ namespace GL
 		m_cachingBuffer(
 			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
 			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F),
-		m_cachingBuffer_copy((u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
+		m_cachingBuffer_copy(
+			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
 			TextureMinFiltering::MIN_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F),
 		m_bounces(params.bounces)
 	{
@@ -91,6 +92,7 @@ namespace GL
 			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 20);
 
 			ImGui::Text("Bounces Step");
+			ImGui::SliderInt("Bounces", &m_bounces, 1, 5);
 
 			ImGui::Text("Reconstruction");
 			ImGui::DragFloat("factor", &m_factor, 0.001f, 0, 2);
@@ -110,7 +112,7 @@ namespace GL
 		Mesh& mesh = *AssetManagement::GetMesh(m_voxelizer.m_screen_filled_quad);
 
 		// Voxels
-		m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
+		m_voxelizer.GetVoxels().BindColorTexture(0, 0);
 
 		const glm::ivec3 size = glm::ivec3(m_voxelizer.GetData().dimensions);
 		const glm::vec3 bbox_max = m_voxelizer.GetData().voxelizationArea.GetMax();
@@ -184,11 +186,13 @@ namespace GL
 		glm::vec3 stratum = bsize;
 		stratum /= m_voxelizer.GetData().dimensions;
 
-		for (u32 i = 0; i < m_bounces; i++)
+		for (u32 i = 1; i < m_bounces; i++)
 		{
 			write_buffer->Bind();
 
 			glCall(glViewport(0, 0, write_buffer->Width(), write_buffer->Height()));
+			glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+			glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 			glCall(glDisable(GL_DEPTH_TEST));
 
 			m_active_cachingBuffer->BindColorTexture(0, 7);
@@ -207,7 +211,7 @@ namespace GL
 			shader.SetUniform("caching_data[5]", 12);
 			shader.SetUniform("caching_data[6]", 13);
 
-			m_voxelizer.GetVoxels(true).BindColorTexture(0, 0);
+			m_voxelizer.GetVoxels().BindColorTexture(0, 0);
 			shader.SetUniform("u_voxels_musked", 0);
 
 			shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
@@ -215,15 +219,17 @@ namespace GL
 			shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 			shader.SetUniform("u_stratum", stratum);
 
-			shader.SetUniform("u_num_samples", 100);
-			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 100);
-			shader.SetUniform("u_average_albedo", 0.5f);
+			shader.SetUniform("u_num_samples", 200);
+			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 200);
+			//shader.SetUniform("u_average_albedo", 0.5f);
 
 			shader.Bind();
 			mesh.m_vertexArray.Bind();
 			mesh.m_indexBuffer.Bind();
 
 			glDrawElementsInstanced(GL_TRIANGLES, mesh.m_indexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr, write_buffer->Depth());
+
+			write_buffer->UnBind();
 
 			std::swap(write_buffer, m_active_cachingBuffer);
 		}

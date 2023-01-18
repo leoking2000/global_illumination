@@ -184,7 +184,7 @@ vec3 DoLightingCalculations(vec3 albedo, vec3 pos, vec3 normal, vec3 mask)
     float denominator = 4.0 * max(dot(normal, surfToEye), 0.0) * max(dot(normal, surfToLight), 0.0) + 0.0001;
     vec3 specular     = numerator / denominator;
 
-    float NdotL = max(dot(normal, surfToLight), 0.0);            
+    float NdotL = max(dot(normal, surfToLight), 0.0);
     vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 
     vec3 color = Lo * shadow_value;

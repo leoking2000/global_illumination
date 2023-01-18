@@ -18,12 +18,12 @@ namespace GL
 		if (m_type == LightType::DIRECTIONAL)
 		{
 			m_light_proj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.1f, 100.0f);
-			m_radiance = glm::vec3(1.0f);
+			m_radiance = glm::vec3(20.0f);
 		}
 		else
 		{
 			m_light_proj = glm::perspective<f32>(m_outercutOffAngle + PI / 8.0f, 1, 0.1f, 1000.0f);
-			m_radiance = glm::vec3(1.0f);
+			m_radiance = glm::vec3(20.0f);
 		}
 	}
 
@@ -44,12 +44,10 @@ namespace GL
 			if (m_type == LightType::DIRECTIONAL)
 			{
 				m_light_proj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.1f, 100.0f);
-				//m_radiance = glm::vec3(1.0f);
 			}
 			else if (old_angle != m_outercutOffAngle)
 			{
-				m_light_proj = glm::perspective<f32>(PI / 2.0f, 1, 0.1f, 1000.0f);
-				m_radiance = glm::vec3(9.0f);
+				m_light_proj = glm::perspective<f32>(m_outercutOffAngle + PI / 8.0f, 1, 0.1f, 1000.0f);
 			}
 		}
 	}

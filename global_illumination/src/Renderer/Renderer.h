@@ -7,18 +7,15 @@ namespace GL
 {
 	struct RendererParameters
 	{
-		u32 window_width;
-		u32 window_height;
-
 		glm::vec3 background_color = glm::vec3(0.0f);
 
 		// projection settings
 		f32 fov_angle = glm::radians(45.0f);
 		f32 min_z = 0.1f;
-		f32 max_z = 100.0f;
+		f32 max_z = 500.0f;
 
 		// lighing
-		glm::vec3 ambient_color = glm::vec3(0.01, 0.012, 0.015);
+		glm::vec3 ambient_color = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		GlobalIlluminationParameters gi_params;
 	};
@@ -26,7 +23,7 @@ namespace GL
 	class Renderer
 	{
 	public:
-		Renderer(const RendererParameters& params);
+		Renderer(u32 window_width, u32 window_height, const RendererParameters& params);
 
 		Renderer(const Renderer&) = delete;
 		Renderer& operator=(const Renderer&) = delete;
@@ -40,14 +37,15 @@ namespace GL
 		void UpdateWindowSize(u32 width, u32 height);
 
 		void DrawGeometryBuffers(Scene& scene, const glm::mat4& proj, const glm::mat4& view);
-		//void DrawAmbientOcclusion
 		void DrawAmbientLighting(Scene& scene);
 		void DrawDirectLighting(Scene& scene);
-		// DrawTransparency
 		void DrawGlobalIllumination(Scene& scene, const glm::mat4& proj, const glm::mat4& view);
 		void PostProcess();
 	private:
+		u32 m_window_width;
+		u32 m_window_height;
 		RendererParameters m_parameters;
+
 		std::unique_ptr<DrawStrategy> m_geometry_stratagy;
 
 		u32 m_ambient_shader;
@@ -94,7 +92,6 @@ namespace GL
 
 		Preview m_active_preview = FINAL_OUTPUT;
 
-		bool m_musked = true;
 		bool m_show_voxels = false;
 		bool m_show_all = false;
 	};

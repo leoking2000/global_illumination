@@ -64,7 +64,7 @@ vec3 CalculateSurfToLight(vec3 pos)
 vec3 CalculateFlux(vec3 pos, vec3 albedo)
 {
     if(u_light.type == 0){
-        return u_light.radiance;
+        return u_light.radiance * albedo;
     }
 
     float theta = dot(CalculateSurfToLight(pos), normalize(-u_light.dir));

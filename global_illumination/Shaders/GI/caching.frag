@@ -103,6 +103,15 @@ void encodeRadianceToSH (in vec3 dir, in vec3 L, out vec3 L00,
     L22   = L * sh22; 
 }
 
+vec3 RGB2YCoCg(vec3 rgbColor)
+{
+	return vec3(
+	 rgbColor.r * 0.25 + rgbColor.g * 0.5 + rgbColor.b * 0.25,
+	 rgbColor.r * 0.5 					  - rgbColor.b * 0.5,
+	-rgbColor.r * 0.25 + rgbColor.g * 0.5 - rgbColor.b * 0.25
+	);
+}
+
 void main()
 {
     // get the coordinates of the current voxel
@@ -150,7 +159,7 @@ void main()
         float depth = texture(u_RSM_depth, uv).r;
         vec4 pos_LCS = vec4 (vec3(uv.xy, depth) * 2.0 - 1.0, 1.0);
         pos_LCS = u_light_projection_view_inv * pos_LCS;
-        vec3 s_pos = pos_LCS.xyz/pos_LCS.w;
+        vec3 s_pos = pos_LCS.xyz / pos_LCS.w;
         s_pos += 0.5 * s_normal;
 
         // get a random position in wcs
@@ -211,14 +220,16 @@ void main()
             }
         }
         // end OCCLUSION /*/
+        if(vis < 0.0) vis = 0.0;
 
-        float FF = dotprod / float(0.01 + dist * dist);
+        float FF = dotprod / float(0.001 + dist * dist);
         vec3 color = vis * s_flux * FF / (3.14159);
 
         // project the radiance onto spherical harmonics basis functions
         // store the radiance in the incoming direction
         vec3 sh_00, sh_1_1, sh_10, sh_11, sh_2_2, sh_2_1, sh_20, sh_21, sh_22;
 
+        color = RGB2YCoCg(color);
         encodeRadianceToSH(-dir, color, sh_00, sh_1_1, sh_10, sh_11, sh_2_2, sh_2_1, sh_20, sh_21, sh_22);
 
         SH_00  += sh_00;
@@ -233,7 +244,7 @@ void main()
     }
 
     float divsamples = 1.0 / float(u_num_RSM_samples);
-    float mult = inv_pdf * divsamples * 0.001;/// (rsm_size.x*rsm_size.x);
+    float mult = inv_pdf * divsamples / (rsm_size.x * rsm_size.x);
 
     out_data0       = vec4 (SH_00.r,    SH_00.g,    SH_00.b,    SH_1_1.r)   * mult;
     out_data1       = vec4 (SH_1_1.g,   SH_1_1.b,   SH_10.r,    SH_10.g)    * mult;

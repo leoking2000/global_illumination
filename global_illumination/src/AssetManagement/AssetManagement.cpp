@@ -45,9 +45,13 @@ namespace GL
 
 	void AssetManagement::ReloadShaders()
 	{
-		for (u32 i = 0; i < Get().m_shaders.size(); i++)
+		AssetManagement& manager = Get();
+		manager.m_shaders.clear();
+
+		for (u32 i = 0; i < manager.m_shader_names.size(); i++)
 		{
-			ShaderFactory::Reload(Get().m_shaders[i], Get().m_shader_names[i]);
+			ShaderProgram shader = ShaderFactory::Create(manager.m_shader_names[i]);
+			manager.m_shaders.push_back(std::move(shader));
 		}
 	}
 

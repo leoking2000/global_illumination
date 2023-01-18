@@ -47,6 +47,15 @@ vec3 dotSH (in vec3 direction, in vec3 L00,
     return irradiance;
 }
 
+vec3 YCoCg2RGB(vec3 YCoCg)
+{
+	return vec3(
+	YCoCg.r + YCoCg.g - YCoCg.b,
+	YCoCg.r			  + YCoCg.b,
+	YCoCg.r - YCoCg.g - YCoCg.b
+	);
+}
+
 void main()
 {
     float depth = texture(u_tex_depth, tex_cord).r;
@@ -81,7 +90,7 @@ void main()
     for (int i = 0; i < 4; i++)
     {
         vec3 sdir = normal_wcs * D[i].x + v_1 * D[i].y + v_2 * D[i].z;
-        vec3 uvw_new = (0.1*normal_wcs + sdir)/sz + uvw;
+        vec3 uvw_new = (0.1 * normal_wcs + sdir) / sz + uvw;
 
         vec3 sample_irradiance = vec3(0);
 
@@ -104,15 +113,22 @@ void main()
         // calculate the hemispherical integral using SH dot product
         sample_irradiance = 
             dotSH(normal_wcs, L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22);
-    
+
+        sample_irradiance = YCoCg2RGB(sample_irradiance);
+
         gi_diffuse_color += sample_irradiance;
     }
-
     gi_diffuse_color *= 0.25;
 
     vec3 kd = texture(u_tex_albedo, tex_cord).rgb;
-    gi_diffuse_color *= kd / 3.1459;
+    float metallic = texture(u_tex_mask, tex_cord).y;
+    gi_diffuse_color *= (1 - metallic) * kd / PI;
 
     gi_diffuse_color = max(gi_diffuse_color, vec3(0));
-    out_color = vec4(gi_diffuse_color * u_factor, 1);
+    vec3 final_color = gi_diffuse_color * u_factor;
+
+    final_color = final_color / (final_color + vec3(1.0));
+    final_color = pow(final_color, vec3(1.0/2.2)); 
+
+    out_color = vec4(final_color, 1.0);
 }

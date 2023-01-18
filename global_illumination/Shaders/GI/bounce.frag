@@ -8,6 +8,7 @@ layout(location = 5) out vec4 out_data5;
 layout(location = 6) out vec4 out_data6;
 
 flat in int vCurrentLayer;
+const float pi = 3.1415936;
 
 #define NUM_OCCLUSION_SAMPLES 4
 #define MAX_PARAMETRIC_DIST 0.5
@@ -22,9 +23,9 @@ uniform vec3 u_stratum;
 uniform int u_num_samples;
 
 uniform sampler3D caching_data[7];
-uniform vec3 u_samples_3d[200];
+uniform vec3 u_samples_3d[500];
 
-uniform float u_average_albedo;
+//uniform float u_average_albedo;
 
 bool checkCRCValidityGeo(in ivec3 grid_position)
 {
@@ -49,9 +50,17 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
     return ((res.r | res.g | res.b | res.a) > 0u);
 }
 
-float rand(vec2 co)
+float rand1n(vec2 seed)
 {
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+	highp vec3 abc = vec3(12.9898, 78.233, 43758.5453);
+	highp float dt = dot(seed.xy, vec2(abc.x, abc.y));
+	highp float sn = mod(dt, 2 * pi);
+	return max(0.01, fract(sin(sn) * abc.z));
+}
+
+vec2 getSamplingSeed(vec2 unique)
+{
+	return unique.xy * 17;
 }
 
 vec3 dotSH (in vec3 direction, in vec3 L00,
@@ -129,65 +138,28 @@ void main()
     vec3  SH_21    = vec3(0.0,0.0,0.0); 
     vec3  SH_22    = vec3(0.0,0.0,0.0);
 
-    // position is initialized at the center of the current voxel
-    vec3 pos_wcs = u_bbox_min + vec3(voxel_coord) * u_stratum;
-
     vec3 extents = u_bbox_max - u_bbox_min;
     vec3 normalized_extents = extents / max (extents.x, max(extents.y,extents.z) );
+    // position is initialized at the center of the current voxel
+    vec3 pos_wcs = u_bbox_min + vec3(voxel_coord) * u_stratum;
 
     vec3 uvw = (pos_wcs - u_bbox_min) / extents;
 
     float stratum_length = length(u_stratum);
     float surface_radius = stratum_length * 0.5;
 
+    float dist;
+    float occ_vox = 0.0;
     vec3 L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22;
     vec4 data0, data1, data2, data3, data4, data5, data6;
-
-    float occ_vox = 0.0;
 
     for (int i = 0; i < u_num_samples; i++)
     {
         vec3 uvw_dir = normalize(u_samples_3d[i] / normalized_extents);
 
-        //OCCLUSION
-
-        // parametric space ray marching
-        bool hit = false;
-        ivec3 isample_voxel = ivec3(0,0,0);
-
-        // skip one voxel
-        vec3 offset = 0.5/vec3(u_size);
-
-        int random_seed = int(rand(gl_FragCoord.xy.xy) * u_num_samples);
-        vec3 random_rot = u_samples_3d[random_seed] * 0.5 + 0.5;
-        float constant_offset = length(offset + (random_rot.x /vec3(u_size)));
-
-        vec3 start_pos = uvw + uvw_dir * constant_offset;
-        vec3 final_sample_pos = start_pos;
-        vec3 sample_step = uvw_dir * MAX_PARAMETRIC_DIST / float(NUM_OCCLUSION_SAMPLES);
-
-        for (int j = 0; j <= NUM_OCCLUSION_SAMPLES; j++)
-        {
-            vec3 sample_pos = start_pos + j * sample_step;
-
-            uvec4 slice = textureLod(u_voxels_musked, sample_pos.xy, 0);
-            uint voxel_z = uint(u_size.z - floor((sample_pos.z * u_size.z) + 0.0) - 1);
-
-            // get an unsigned vec4 containing the current position (marked as 1)
-            uvec4 slicePos = uvec4(0u,0u,0u,0u);
-            slicePos[voxel_z / 32u] = 1u << (voxel_z % 32u);
-
-            // use AND to mark whether the current position has been set as occupied
-            uvec4 res = slice & slicePos;
-
-            // check if the current position is marked as occupied
-            hit = hit || ((res.r | res.g | res.b | res.a) > 0u); 
-            
-            isample_voxel = (hit)? ivec3(sample_pos * u_size) : isample_voxel;
-            final_sample_pos = (hit)? sample_pos : final_sample_pos;
-            j = (hit)? NUM_OCCLUSION_SAMPLES : j;
-        }
-        // END OCCLUSION
+        bool hit = true;
+        vec3 final_sample_pos = (uvw + uvw_dir) * MAX_PARAMETRIC_DIST;
+        ivec3 isample_voxel = ivec3(final_sample_pos * u_size);
 
         vec3 sample_pos_wcs = u_bbox_min + vec3(isample_voxel + 0.5) * u_stratum;
         vec3 dir = sample_pos_wcs - pos_wcs;
@@ -195,60 +167,51 @@ void main()
         if (!hit || dot(dir, dir) < stratum_length * stratum_length){
             continue;
         }
-
         occ_vox += 1;
 
         dir = normalize(dir);
+
         vec3 L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22;
-        vec4 data0        = texture(caching_data[0], final_sample_pos);    
-        vec4 data1        = texture(caching_data[1], final_sample_pos);
-        vec4 data2        = texture(caching_data[2], final_sample_pos);
-        vec4 data3        = texture(caching_data[3], final_sample_pos);
-        vec4 data4        = texture(caching_data[4], final_sample_pos);
-        vec4 data5        = texture(caching_data[5], final_sample_pos);
-        vec4 data6        = texture(caching_data[6], final_sample_pos);
-        L00               = vec3(data0.x, data0.y, data0.z);
-        L1_1              = vec3(data0.w, data1.x, data1.y);
-        L10               = vec3(data1.z, data1.w, data2.x);
-        L11               = vec3(data2.y, data2.z, data2.w);
-        L2_2              = vec3(data3.x, data3.y, data3.z);
-        L2_1              = vec3(data3.w, data4.x, data4.y);
-        L20               = vec3(data4.z, data4.w, data5.x);
-        L21               = vec3(data5.y, data5.z, data5.w);
-        L22               = vec3(data6.x, data6.y, data6.z);
+        vec4 data0  = texture(caching_data[0], final_sample_pos);
+        vec4 data1  = texture(caching_data[1], final_sample_pos);
+        vec4 data2  = texture(caching_data[2], final_sample_pos);
+        vec4 data3  = texture(caching_data[3], final_sample_pos);
+        vec4 data4  = texture(caching_data[4], final_sample_pos);
+        vec4 data5  = texture(caching_data[5], final_sample_pos);
+        vec4 data6  = texture(caching_data[6], final_sample_pos);
+        L00         = vec3(data0.x, data0.y, data0.z);
+        L1_1        = vec3(data0.w, data1.x, data1.y);
+        L10         = vec3(data1.z, data1.w, data2.x);
+        L11         = vec3(data2.y, data2.z, data2.w);
+        L2_2        = vec3(data3.x, data3.y, data3.z);
+        L2_1        = vec3(data3.w, data4.x, data4.y);
+        L20         = vec3(data4.z, data4.w, data5.x);
+        L21         = vec3(data5.y, data5.z, data5.w);
+        L22         = vec3(data6.x, data6.y, data6.z);
 
         // calculate the hemispherical integral using SH dot product
         vec3 sample_irradiance = dotSH (-dir, L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22);
         encodeRadianceToSH(dir, sample_irradiance, L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22);    
 
         SH_00  += L00;
-        SH_1_1 += L1_1; 
+        SH_1_1 += L1_1;
         SH_10  += L10;
         SH_11  += L11;
-        SH_2_2 += L2_2; 
-        SH_2_1 += L2_1; 
+        SH_2_2 += L2_2;
+        SH_2_1 += L2_1;
         SH_20  += L20;
         SH_21  += L21;
         SH_22  += L22;
     }
 
-    float mult = 4.0 * u_average_albedo / float( 1 + occ_vox );
+    float mult = 4.0 * 1.0 / float( 1 + occ_vox );
 
-//    out_data0            = vec4 (SH_00.r,    SH_00.g,    SH_00.b,    SH_1_1.r)   * mult;
-//    out_data1            = vec4 (SH_1_1.g,   SH_1_1.b,   SH_10.r,    SH_10.g)    * mult;
-//    out_data2            = vec4 (SH_10.b,    SH_11.r,    SH_11.g,    SH_11.b)    * mult;
-//    out_data3            = vec4 (SH_2_2.r,   SH_2_2.g,   SH_2_2.b,   SH_2_1.r)   * mult;
-//    out_data4            = vec4 (SH_2_1.g,   SH_2_1.b,   SH_20.r,    SH_20.g)    * mult;
-//    out_data5            = vec4 (SH_20.b,    SH_21.r,    SH_21.g,    SH_21.b)    * mult;
-//    out_data6.rgb        = vec3 (SH_22.r,    SH_22.g,    SH_22.b)                * mult;
-//   out_data6.a          = 1.0;
-
-    out_data0            = vec4 (SH_00.r,    SH_00.g,    SH_00.b,    SH_1_1.r)   * mult + texture(caching_data[0],uvw);
-    out_data1            = vec4 (SH_1_1.g,   SH_1_1.b,   SH_10.r,    SH_10.g)    * mult + texture(caching_data[1],uvw);
-    out_data2            = vec4 (SH_10.b,    SH_11.r,    SH_11.g,    SH_11.b)    * mult + texture(caching_data[2],uvw);
-    out_data3            = vec4 (SH_2_2.r,   SH_2_2.g,   SH_2_2.b,   SH_2_1.r)   * mult + texture(caching_data[3],uvw);
-    out_data4            = vec4 (SH_2_1.g,   SH_2_1.b,   SH_20.r,    SH_20.g)    * mult + texture(caching_data[4],uvw);
-    out_data5            = vec4 (SH_20.b,    SH_21.r,    SH_21.g,    SH_21.b)    * mult + texture(caching_data[5],uvw);
-    out_data6.rgb        = vec3 (SH_22.r,    SH_22.g,    SH_22.b)                * mult + texture(caching_data[6],uvw).rgb;
-   out_data6.a         = 1.0;
+    out_data0       = vec4 (SH_00.r  ,SH_00.g  ,SH_00.b  ,SH_1_1.r )   * mult + texture(caching_data[0],uvw);
+    out_data1       = vec4 (SH_1_1.g ,SH_1_1.b ,SH_10.r  ,SH_10.g  )   * mult + texture(caching_data[1],uvw);
+    out_data2       = vec4 (SH_10.b  ,SH_11.r  ,SH_11.g  ,SH_11.b  )   * mult + texture(caching_data[2],uvw);
+    out_data3       = vec4 (SH_2_2.r ,SH_2_2.g ,SH_2_2.b ,SH_2_1.r )   * mult + texture(caching_data[3],uvw);
+    out_data4       = vec4 (SH_2_1.g ,SH_2_1.b ,SH_20.r  ,SH_20.g  )   * mult + texture(caching_data[4],uvw);
+    out_data5       = vec4 (SH_20.b  ,SH_21.r  ,SH_21.g  ,SH_21.b  )   * mult + texture(caching_data[5],uvw);
+    out_data6.rgb   = vec3 (SH_22.r  ,SH_22.g  ,SH_22.b)               * mult + texture(caching_data[6],uvw).rgb;
+    out_data6.a     = 1.0;
 }

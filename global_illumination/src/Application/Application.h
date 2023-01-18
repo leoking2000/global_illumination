@@ -9,9 +9,7 @@ namespace GL
 	struct ApplicationParameters
 	{
 		WindowParameters windows_params;
-
-		// renderer
-		glm::vec3 background_color = glm::vec3(0.0f);
+		RendererParameters renderer_params;
 
 		// scene
 		std::string asset_dir = "";

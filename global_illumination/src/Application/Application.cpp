@@ -1,6 +1,5 @@
 #include "Application.h"
 #include "AssetManagement/AssetManagement.h"
-#include "SceneGraph/NodeBehavior.h"
 
 namespace GL
 {
@@ -8,9 +7,8 @@ namespace GL
 	Application::Application(const ApplicationParameters& params)
 		:
 		window(params.windows_params),
-		renderer({ params.windows_params.width, params.windows_params.height, 
-			params.background_color, 
-			glm::radians(45.0f), 0.1f, 100.0f })
+		renderer(params.windows_params.width, params.windows_params.height, 
+			params.renderer_params)
 	{
 		AssetManagement::SetAssetDir(params.asset_dir);
 

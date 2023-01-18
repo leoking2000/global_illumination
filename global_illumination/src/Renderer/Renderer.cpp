@@ -11,11 +11,13 @@
 
 namespace GL
 {
-	Renderer::Renderer(const RendererParameters& params)
+	Renderer::Renderer(u32 window_width, u32 window_height, const RendererParameters& params)
 		:
+		m_window_width(window_width),
+		m_window_height(window_height),
 		m_parameters(params),
-		m_shading_buffer(params.window_width, params.window_height, 1, TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST),
-		m_global_illumination(params.gi_params, params.window_width, params.window_height)
+		m_shading_buffer(window_width, window_height, 1, TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST),
+		m_global_illumination(params.gi_params, window_width, window_height)
 	{
 
 	}
@@ -28,7 +30,7 @@ namespace GL
 	void Renderer::Init(Scene& scene)
 	{	
 		// create Draw strategies
-		m_geometry_stratagy = std::unique_ptr<DrawStrategy>(new GeometryDrawStratagy(m_parameters.window_width, m_parameters.window_height));
+		m_geometry_stratagy = std::unique_ptr<DrawStrategy>(new GeometryDrawStratagy(m_window_width, m_window_height));
 
 		// shaders
 		m_ambient_shader = AssetManagement::CreateShader("Lighting/ambientLight");
@@ -44,12 +46,13 @@ namespace GL
 
 	void Renderer::Render(u32 width, u32 height, Scene& scene)
 	{
+		UpdateWindowSize(width, height);
+
 		glm::mat4 proj = glm::perspective(m_parameters.fov_angle,
-			(f32)m_parameters.window_width / (f32)m_parameters.window_height,
+			(f32)m_window_width / (f32)m_window_height,
 			m_parameters.min_z, m_parameters.max_z);
 		glm::mat4 view = scene.camera.GetCameraView();
 
-		UpdateWindowSize(width, height);
 
 		DrawGeometryBuffers(scene, proj, view);
 		DrawAmbientLighting(scene);
@@ -60,10 +63,10 @@ namespace GL
 
 	void Renderer::UpdateWindowSize(u32 width, u32 height)
 	{
-		if (width != m_parameters.window_width || height != m_parameters.window_height)
+		if (width != m_window_width || height != m_window_height)
 		{
-			m_parameters.window_width = width;
-			m_parameters.window_height = height;
+			m_window_width = width;
+			m_window_height = height;
 
 			m_geometry_stratagy->GetFrameBuffer().Resize(width, height);
 			m_shading_buffer.Resize(width, height);
@@ -157,7 +160,7 @@ namespace GL
 
 	void Renderer::PostProcess()
 	{
-		glCall(glViewport(0, 0, m_parameters.window_width, m_parameters.window_height));
+		glCall(glViewport(0, 0, m_window_width, m_window_height));
 		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		glCall(glDisable(GL_DEPTH_TEST));
 
@@ -229,10 +232,10 @@ namespace GL
 	{
 		if (m_show_voxels)
 		{
-			const FrameBuffer& voxels = m_global_illumination.GetVoxelizer().GetVoxels(m_musked);
+			const FrameBuffer& voxels = m_global_illumination.GetVoxelizer().GetVoxels();
 
 			m_preview.DrawVoxels(geometryBuffer, proj_view,
-				m_global_illumination.GetVoxelizer().GetData(), voxels, m_musked, m_show_all);
+				m_global_illumination.GetVoxelizer().GetData(), voxels, true, m_show_all);
 		}
 	}
 
@@ -245,8 +248,8 @@ namespace GL
 
 		if (ImGui::CollapsingHeader("Renderer Parameters"))
 		{
-			ImGui::Text("Window Width: %i", m_parameters.window_width);
-			ImGui::Text("Window Height: %i", m_parameters.window_height);
+			ImGui::Text("Window Width: %i", m_window_width);
+			ImGui::Text("Window Height: %i", m_window_height);
 			//ImGui::ColorPicker3("Background Color", glm::value_ptr(m_parameters.background_color));
 			ImGui::DragFloat3("Ambient Color", glm::value_ptr(m_parameters.ambient_color));
 			ImGui::DragFloat("FOV angle (in radians)", &m_parameters.fov_angle, 0.01f, 0.0f, 2 * PI);
@@ -259,8 +262,6 @@ namespace GL
 		if (ImGui::CollapsingHeader("Preview"))
 		{
 			ImGui::ListBox("Previews", (int*)&m_active_preview, m_name_previews, NUMBER_OF_PREVIEWS, 5);
-			//ImGui::Checkbox("Musked", &m_musked);
-			m_musked = true;
 			ImGui::Checkbox("Show Voxels", &m_show_voxels);
 			ImGui::Checkbox("Show All Voxels", &m_show_all);
 		}

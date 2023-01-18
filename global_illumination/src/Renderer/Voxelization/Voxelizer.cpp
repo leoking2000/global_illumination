@@ -13,10 +13,7 @@ namespace GL
 		m_merge_voxels((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
 			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI),
 		m_voxels_dilated((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
-			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI),
-		m_grid_buffer((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, (u32)m_data.dimensions.z,
-			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST,
-			TextureFormat::RGBA32F, FrameBufferMode::Texture3D)
+			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI)
 	{
 
 	}
@@ -32,9 +29,6 @@ namespace GL
 		// Create dilation shader //
 		m_dilationShader = AssetManagement::CreateShader("Voxelization\\DilateVoxelSpace");
 
-		// Create GridCreation shader //
-		m_grid_shader = AssetManagement::CreateShader("Voxelization/grid_generation");
-
 		// make usefull meshs
 		m_screen_filled_quad = AssetManagement::CreateMesh(DefaultShape::SCRERN_FILLED_QUARD);
 	}
@@ -44,18 +38,11 @@ namespace GL
 		ThreeWayStep(scene);
 		MergeStep();
 		DilationStep();
-
-		//GridCreationStage();
 	}
 
-	const FrameBuffer& Voxelizer::GetVoxels(bool musked) const
+	const FrameBuffer& Voxelizer::GetVoxels() const
 	{
-		if (musked)
-		{
-			return m_voxels_dilated;
-		}
-
-		return m_grid_buffer;
+		return m_voxels_dilated;
 	}
 
 	const VoxelizerData& Voxelizer::GetData() const
@@ -115,40 +102,6 @@ namespace GL
 		shader.UnBind();
 
 		m_voxels_dilated.UnBind();
-	}
-
-	void Voxelizer::GridCreationStage()
-	{
-		m_grid_buffer.Bind();
-
-		glCall(glViewport(0, 0, m_grid_buffer.Width(), m_grid_buffer.Height()));
-		glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-		glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-		glCall(glDisable(GL_DEPTH_TEST));
-
-		ShaderProgram& shader = *AssetManagement::GetShader(m_grid_shader);
-		Mesh& mesh = *AssetManagement::GetMesh(m_screen_filled_quad);
-
-		m_voxels_dilated.BindColorTexture(0, 0);
-		shader.SetUniform("u_voxels", 0);
-
-		shader.SetUniform("u_size", glm::ivec3(m_data.dimensions));
-		shader.SetUniform("uniform_bbox_min", m_data.voxelizationArea.GetMin());
-		shader.SetUniform("uniform_bbox_max", m_data.voxelizationArea.GetMax());
-
-		shader.Bind();
-
-		mesh.m_vertexArray.Bind();
-		mesh.m_indexBuffer.Bind();
-
-		glDrawElementsInstanced(GL_TRIANGLES, mesh.m_indexBuffer.GetCount(), GL_UNSIGNED_INT, nullptr, (u32)m_data.dimensions.z);
-
-		mesh.m_vertexArray.UnBind();
-		mesh.m_indexBuffer.UnBind();
-
-		shader.UnBind();
-
-		m_grid_buffer.UnBind();
 	}
 }
 
