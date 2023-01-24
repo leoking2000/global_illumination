@@ -34,6 +34,6 @@ namespace GL
 		f32 m_outercutOffAngle = glm::radians(17.5f);
 	private:
 		glm::mat4 m_light_proj;
-		f32 m_shadow_bias = 0.002;
+		f32 m_shadow_bias = 0.002f;
 	};
 }

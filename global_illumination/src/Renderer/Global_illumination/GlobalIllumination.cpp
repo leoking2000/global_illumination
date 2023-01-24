@@ -56,7 +56,7 @@ namespace GL
 		CachingStep(scene);
 
 		// bounce
-		//BounceStep();
+		BounceStep();
 
 		// blend
 
@@ -176,6 +176,8 @@ namespace GL
 
 	void GlobalIllumination::BounceStep()
 	{
+		if (m_bounces <= 1) return;
+
 		m_active_cachingBuffer = &m_cachingBuffer;
 		FrameBuffer* write_buffer = &m_cachingBuffer_copy;
 
@@ -186,14 +188,15 @@ namespace GL
 		glm::vec3 stratum = bsize;
 		stratum /= m_voxelizer.GetData().dimensions;
 
-		for (u32 i = 1; i < m_bounces; i++)
+		for (i32 i = 1; i < m_bounces; i++)
 		{
 			write_buffer->Bind();
 
 			glCall(glViewport(0, 0, write_buffer->Width(), write_buffer->Height()));
 			glCall(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
-			glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+			glCall(glClear(GL_COLOR_BUFFER_BIT));
 			glCall(glDisable(GL_DEPTH_TEST));
+			glCall(glDisable(GL_BLEND));
 
 			m_active_cachingBuffer->BindColorTexture(0, 7);
 			m_active_cachingBuffer->BindColorTexture(1, 8);
@@ -219,8 +222,8 @@ namespace GL
 			shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 			shader.SetUniform("u_stratum", stratum);
 
-			shader.SetUniform("u_num_samples", 200);
-			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphere(), 200);
+			shader.SetUniform("u_num_samples", 100);
+			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphereOnSurface(), 100);
 			//shader.SetUniform("u_average_albedo", 0.5f);
 
 			shader.Bind();

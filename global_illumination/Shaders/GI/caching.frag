@@ -17,6 +17,8 @@ uniform vec3 u_bbox_min;
 uniform vec3 u_stratum;
 uniform vec3 u_occlusion_bextents;
 
+uniform usampler2D u_voxels_oclusion;
+
 // RSM
 uniform sampler2D u_RSM_depth;
 uniform sampler2D u_RSM_flux;
@@ -160,7 +162,6 @@ void main()
         vec4 pos_LCS = vec4 (vec3(uv.xy, depth) * 2.0 - 1.0, 1.0);
         pos_LCS = u_light_projection_view_inv * pos_LCS;
         vec3 s_pos = pos_LCS.xyz / pos_LCS.w;
-        s_pos += 0.5 * s_normal;
 
         // get a random position in wcs
         // pos_wcs is located at the center of the voxel and the samples are in the range of [0,1]
@@ -201,6 +202,7 @@ void main()
                 sample_pos = start_pos + j * voxel_marching_step - 0.1 * voxel_marching_dir;
                 voxel_pos = (sample_pos - u_bbox_min) / u_occlusion_bextents;
 
+                //uvec4 slice = textureLod(u_voxels_oclusion, voxel_pos.xy, 0);
                 uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
                 uint voxel_z = uint(u_size.z - floor((voxel_pos.z * u_size.z) + 0.0) - 1);
 
@@ -219,8 +221,7 @@ void main()
                 }
             }
         }
-        // end OCCLUSION /*/
-        if(vis < 0.0) vis = 0.0;
+        // end OCCLUSION //
 
         float FF = dotprod / float(0.001 + dist * dist);
         vec3 color = vis * s_flux * FF / (3.14159);

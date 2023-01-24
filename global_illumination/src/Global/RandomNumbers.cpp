@@ -6,6 +6,7 @@ namespace GL
 {
 	std::vector<glm::vec2>  RandomNumbers::m_halton_sequence_2d;
 	std::vector<glm::vec3>  RandomNumbers::m_halton_sequence_3d_sphere;
+	std::vector<glm::vec3>  RandomNumbers::m_halton_sequence_3d_sphere_surface;
 	bool RandomNumbers::m_genatated = false;
 
 	void RandomNumbers::Genarate()
@@ -20,6 +21,11 @@ namespace GL
 	const std::vector<glm::vec3>& RandomNumbers::GetHaltonSequence3DSphere()
 	{
 		return m_halton_sequence_3d_sphere;
+	}
+
+	const std::vector<glm::vec3>& RandomNumbers::GetHaltonSequence3DSphereOnSurface()
+	{
+		return m_halton_sequence_3d_sphere_surface;
 	}
 
 	const std::vector<glm::vec2>& RandomNumbers::GetHaltonSequence2D()
@@ -533,12 +539,16 @@ namespace GL
 			-0.236929774,-0.854087005,0.328859955 };
 
 		m_halton_sequence_3d_sphere.resize(size);
+		m_halton_sequence_3d_sphere_surface.resize(size);
 
 		u32 j = 0;
 		for (u32 i = 0; i < size; i++, j += 3)
 		{
 			assert((j + 2) < (500 * 3));
-			m_halton_sequence_3d_sphere[i] = glm::vec3((f32)tmp_3d[j], (f32)tmp_3d[j + 1], tmp_3d[j + 2]);
+			glm::vec3 sample = glm::vec3((f32)tmp_3d[j], (f32)tmp_3d[j + 1], tmp_3d[j + 2]);
+			m_halton_sequence_3d_sphere[i] = sample;
+
+			m_halton_sequence_3d_sphere_surface[i] = glm::normalize(sample);
 		}
 	}
 

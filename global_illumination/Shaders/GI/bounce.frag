@@ -52,15 +52,15 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
 
 float rand1n(vec2 seed)
 {
-	highp vec3 abc = vec3(12.9898, 78.233, 43758.5453);
-	highp float dt = dot(seed.xy, vec2(abc.x, abc.y));
-	highp float sn = mod(dt, 2 * pi);
-	return max(0.01, fract(sin(sn) * abc.z));
+    highp vec3 abc = vec3(12.9898, 78.233, 43758.5453);
+    highp float dt = dot(seed.xy, vec2(abc.x, abc.y));
+    highp float sn = mod(dt, 2 * pi);
+    return max(0.01, fract(sin(sn) * abc.z));
 }
 
 vec2 getSamplingSeed(vec2 unique)
 {
-	return unique.xy * 17;
+    return unique.xy * 17;
 }
 
 vec3 dotSH (in vec3 direction, in vec3 L00,
@@ -157,9 +157,45 @@ void main()
     {
         vec3 uvw_dir = normalize(u_samples_3d[i] / normalized_extents);
 
-        bool hit = true;
-        vec3 final_sample_pos = (uvw + uvw_dir) * MAX_PARAMETRIC_DIST;
-        ivec3 isample_voxel = ivec3(final_sample_pos * u_size);
+        //OCCLUSION
+        // parametric space ray marching
+        bool hit = false;
+        ivec3 isample_voxel = ivec3(0,0,0);
+
+        // skip one voxel
+        vec3 offset = 0.5 / vec3(u_size);
+
+        vec2 seed = getSamplingSeed(vec2(gl_FragCoord));
+        int random_seed = int(rand1n(seed) * u_num_samples);
+        vec3 random_rot = u_samples_3d[random_seed] * 0.5 + 0.5;
+
+        float constant_offset = length(offset + (random_rot.x /vec3(u_size)));
+
+        vec3 start_pos = uvw + uvw_dir * constant_offset + uvw_dir * 0.1;
+        vec3 final_sample_pos = start_pos;
+        vec3 sample_step = uvw_dir * MAX_PARAMETRIC_DIST / float(NUM_OCCLUSION_SAMPLES);
+
+        for (int j = 0; j <= NUM_OCCLUSION_SAMPLES; j++)
+        {
+            vec3 sample_pos = start_pos + j * sample_step;
+
+            uvec4 slice = textureLod(u_voxels_musked, sample_pos.xy, 0);
+            uint voxel_z = uint(128 - floor((sample_pos.z * 128) + 0.0) - 1);
+
+            // get an unsigned vec4 containing the current position (marked as 1)
+            uvec4 slicePos = uvec4(0u,0u,0u,0u);
+            slicePos[voxel_z / 32u] = 1u << (voxel_z % 32u);
+
+            // use AND to mark whether the current position has been set as occupied
+            uvec4 res = slice & slicePos;
+
+            // check if the current position is marked as occupied
+            hit = hit || ((res.r | res.g | res.b | res.a) > 0u); 
+            
+            isample_voxel = (hit)? ivec3(sample_pos * u_size) : isample_voxel;
+            final_sample_pos = (hit)? sample_pos : final_sample_pos;
+            j = (hit)? NUM_OCCLUSION_SAMPLES : j;
+        }
 
         vec3 sample_pos_wcs = u_bbox_min + vec3(isample_voxel + 0.5) * u_stratum;
         vec3 dir = sample_pos_wcs - pos_wcs;
@@ -204,7 +240,7 @@ void main()
         SH_22  += L22;
     }
 
-    float mult = 4.0 * 1.0 / float( 1 + occ_vox );
+    float mult = 4.0 * 0.5 / float( 1 + occ_vox );
 
     out_data0       = vec4 (SH_00.r  ,SH_00.g  ,SH_00.b  ,SH_1_1.r )   * mult + texture(caching_data[0],uvw);
     out_data1       = vec4 (SH_1_1.g ,SH_1_1.b ,SH_10.r  ,SH_10.g  )   * mult + texture(caching_data[1],uvw);
