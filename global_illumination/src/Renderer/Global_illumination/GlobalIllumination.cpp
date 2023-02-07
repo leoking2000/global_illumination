@@ -7,6 +7,12 @@
 #include "Global/Logger.h"
 #include <algorithm>
 
+#ifdef USETIMER
+#define MEASURE_GPU_TIME(timer, x) timer.StartTimer(); x; timer.StopTimer() 
+#else
+#define MEASURE_GPU_TIME(timer, x) x
+#endif
+
 namespace GL
 {
 	GlobalIllumination::GlobalIllumination(const GlobalIlluminationParameters& params, u32 window_width, u32 window_height)
@@ -49,19 +55,21 @@ namespace GL
 	void GlobalIllumination::Draw(Scene& scene,const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
 		const glm::mat4& proj, const glm::mat4& view)
 	{
+		if (m_bounces == 0) return;
+
 		// voxelize
-		m_voxelizer.Voxelize(scene);
+		MEASURE_GPU_TIME(m_voxelize_timer, m_voxelizer.Voxelize(scene));
 
 		// caching
-		CachingStep(scene);
+		MEASURE_GPU_TIME(m_caching_timer, CachingStep(scene));
 
 		// bounce
-		BounceStep();
+		MEASURE_GPU_TIME(m_bounce_timer, BounceStep());
 
 		// blend
 
 		// Reconstruction
-		ReconstructionStep(scene, shading_buffer, geometryBuffer, proj, view);
+		MEASURE_GPU_TIME(m_reconstruction_timer ,ReconstructionStep(scene, shading_buffer, geometryBuffer, proj, view));
 	}
 
 	const Voxelizer& GlobalIllumination::GetVoxelizer() const
@@ -86,17 +94,35 @@ namespace GL
 		if (ImGui::CollapsingHeader("Global Illumination"))
 		{
 			ImGui::Text("Caching Step");
-			ImGui::SliderInt("RSM Samples", &m_num_RSM_samples, 0, 200);
+			ImGui::SliderInt("RSM Samples", &m_num_RSM_samples, 0, 500);
 			ImGui::DragFloat("Spread", &m_spread, 0.001f, 0, 2);
 			ImGui::Checkbox("Occlusion Enable", &m_occlusion_enable);
 			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 20);
 
 			ImGui::Text("Bounces Step");
-			ImGui::SliderInt("Bounces", &m_bounces, 1, 5);
+			ImGui::SliderInt("Bounces", &m_bounces, 0, 5);
+			ImGui::SliderInt("Bounces Samples", &m_num_bounces_samples, 0, 500);
+			ImGui::DragFloat("Average Albedo", &m_average_albedo, 0.001f, 0, 1);
 
 			ImGui::Text("Reconstruction");
 			ImGui::DragFloat("factor", &m_factor, 0.001f, 0, 2);
 		}
+
+#ifdef USETIMER
+		if (ImGui::CollapsingHeader("GI Performance"))
+		{
+			f32 voxel_time          = m_voxelize_timer.GetDeltaTime_milliseconds();
+			f32 caching_time        = m_caching_timer.GetDeltaTime_milliseconds();
+			f32 bounce_time         = m_bounce_timer.GetDeltaTime_milliseconds();
+			f32 reconstruction_time = m_reconstruction_timer.GetDeltaTime_milliseconds();
+
+			ImGui::Text("Voxelize: %f", voxel_time);
+			ImGui::Text("Caching: %f", caching_time);
+			ImGui::Text("Bounce: %f", bounce_time);
+			ImGui::Text("Reconstruction: %f", reconstruction_time);
+			ImGui::Text("Total: %f", voxel_time + caching_time + bounce_time + reconstruction_time);
+		}
+#endif // USETIMER
 	}
 
 	void GlobalIllumination::CachingStep(Scene& scene)
@@ -222,9 +248,9 @@ namespace GL
 			shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 			shader.SetUniform("u_stratum", stratum);
 
-			shader.SetUniform("u_num_samples", 100);
-			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphereOnSurface(), 100);
-			//shader.SetUniform("u_average_albedo", 0.5f);
+			shader.SetUniform("u_num_samples", m_num_bounces_samples);
+			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphereOnSurface(), m_num_bounces_samples);
+			shader.SetUniform("u_average_albedo", m_average_albedo);
 
 			shader.Bind();
 			mesh.m_vertexArray.Bind();
@@ -244,7 +270,6 @@ namespace GL
 
 		write_buffer->UnBind();
 		m_active_cachingBuffer->UnBind();
-
 	}
 
 	void GlobalIllumination::ReconstructionStep(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
@@ -275,8 +300,14 @@ namespace GL
 
 		shader.SetUniform("u_proj_view_inv", glm::inverse(proj * view));
 
+		const glm::vec3& bsize = m_voxelizer.GetData().voxelizationArea.GetSize();
+		glm::vec3 stratum = bsize;
+		stratum /= m_voxelizer.GetData().dimensions;
+
 		shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 		shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
+		shader.SetUniform("u_bbox_min_side", m_voxelizer.GetData().voxelizationArea.GetMinSide());
+		shader.SetUniform("u_stratum", stratum);
 
 		shader.SetUniform("u_factor", m_factor);
 

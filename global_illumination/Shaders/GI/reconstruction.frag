@@ -16,6 +16,8 @@ uniform mat4 u_proj_view_inv;
 
 uniform vec3 u_bbox_min;
 uniform vec3 u_bbox_max;
+uniform float u_bbox_min_side;
+uniform vec3 u_stratum;
 
 // settings
 uniform float u_factor;
@@ -49,11 +51,11 @@ vec3 dotSH (in vec3 direction, in vec3 L00,
 
 vec3 YCoCg2RGB(vec3 YCoCg)
 {
-	return vec3(
-	YCoCg.r + YCoCg.g - YCoCg.b,
-	YCoCg.r			  + YCoCg.b,
-	YCoCg.r - YCoCg.g - YCoCg.b
-	);
+    return vec3(
+    YCoCg.r + YCoCg.g - YCoCg.b,
+    YCoCg.r              + YCoCg.b,
+    YCoCg.r - YCoCg.g - YCoCg.b
+    );
 }
 
 void main()
@@ -124,9 +126,35 @@ void main()
     float metallic = texture(u_tex_mask, tex_cord).y;
     gi_diffuse_color *= (1 - metallic) * kd / PI;
 
-    gi_diffuse_color = max(gi_diffuse_color, vec3(0));
-    vec3 final_color = gi_diffuse_color * u_factor;
+    // for a moving volume, the final GI color is a blend
+    // between the reconstructed irradiance and a constant
+    // ambient color
+    // blend starts at 4 voxels before the box's minimum side and
+    // reaches maximum at 2 voxels before the box's minimum side
 
+    // center of the moving volume in wcs
+    vec3 box_center = (u_bbox_max + u_bbox_min) * 0.5;
+    vec3 min_side_blend_start = box_center + u_bbox_min_side - u_stratum * 2.0;
+    vec3 min_side_blend_stop = box_center +  u_bbox_min_side - u_stratum * 0.0;
+
+    // distance of current point from center
+    float dist = distance(box_center, pos_wcs);
+    // distance of current point from start of blending
+    float dist_min = distance(box_center, min_side_blend_start);
+    // distance of current point to stop of blending
+    float dist_max = distance(box_center, min_side_blend_stop);
+
+    // normalize it
+    float dist_norm = (dist - dist_min) / (dist_max - dist_min);
+    dist_norm = clamp(dist_norm, 0.0, 1.0);
+
+    // blend
+    vec3 ambient = vec3(0.1) * kd / 3.14159;
+    gi_diffuse_color.rgb = mix(gi_diffuse_color.rgb, ambient, dist_norm);
+
+    gi_diffuse_color = max(gi_diffuse_color, vec3(0));
+
+    vec3 final_color = gi_diffuse_color * u_factor;
     final_color = final_color / (final_color + vec3(1.0));
     final_color = pow(final_color, vec3(1.0/2.2)); 
 

@@ -7,8 +7,7 @@ namespace GL
 	Application::Application(const ApplicationParameters& params)
 		:
 		window(params.windows_params),
-		renderer(params.windows_params.width, params.windows_params.height, 
-			params.renderer_params)
+		params(params)
 	{
 		AssetManagement::SetAssetDir(params.asset_dir);
 
@@ -26,7 +25,10 @@ namespace GL
 	void Application::Run()
 	{
 		GameSetUp();
-		renderer.Init(scene);
+		pRenderer = std::make_unique<Renderer>(params.windows_params.width, params.windows_params.height,
+			params.renderer_params);
+
+		pRenderer->Init(scene);
 
 		LOGINFO("Application Run");
 
@@ -38,8 +40,8 @@ namespace GL
 			UpdateCamera(dt);
 			scene.Update(dt);
 
-			renderer.Render((u32)win_size.x, (u32)win_size.y, scene);
-			renderer.DebugImGui(scene, dt);
+			pRenderer->Render((u32)win_size.x, (u32)win_size.y, scene);
+			pRenderer->DebugImGui(scene, dt);
 		});
 	}
 

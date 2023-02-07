@@ -3,6 +3,7 @@
 #include "Window/Window.h"
 #include "Renderer/Renderer.h"
 #include "SceneGraph/Scene.h"
+#include <memory>
 
 namespace GL
 {
@@ -35,8 +36,9 @@ namespace GL
 		virtual void GameSetUp() = 0;
 		virtual void GameUpdate(f32 dt) = 0;
 	protected:
+		ApplicationParameters params;
 		Window window;
-		Renderer renderer;
 		Scene scene;
+		std::unique_ptr<Renderer> pRenderer;
 	};
 }

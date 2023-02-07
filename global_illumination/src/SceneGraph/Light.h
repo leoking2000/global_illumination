@@ -26,6 +26,7 @@ namespace GL
 	public:
 		glm::vec3 m_pos;
 		glm::vec3 m_dir;
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	private:
 		glm::vec3 m_radiance = glm::vec3(1.0f);
 		LightType m_type;

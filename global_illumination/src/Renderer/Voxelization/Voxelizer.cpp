@@ -43,6 +43,7 @@ namespace GL
 	const FrameBuffer& Voxelizer::GetVoxels() const
 	{
 		return m_voxels_dilated;
+		//return m_merge_voxels;
 	}
 
 	const VoxelizerData& Voxelizer::GetData() const

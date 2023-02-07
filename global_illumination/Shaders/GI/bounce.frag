@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 layout(location = 0) out vec4 out_data0;
 layout(location = 1) out vec4 out_data1;
 layout(location = 2) out vec4 out_data2;
@@ -12,6 +12,7 @@ const float pi = 3.1415936;
 
 #define NUM_OCCLUSION_SAMPLES 4
 #define MAX_PARAMETRIC_DIST 0.5
+#define OCCLUSION
 
 // voxel
 uniform usampler2D u_voxels_musked;
@@ -19,13 +20,14 @@ uniform ivec3 u_size;
 uniform vec3 u_bbox_max;
 uniform vec3 u_bbox_min;
 uniform vec3 u_stratum;
-
-uniform int u_num_samples;
-
 uniform sampler3D caching_data[7];
-uniform vec3 u_samples_3d[500];
 
-//uniform float u_average_albedo;
+// settings
+uniform int u_num_samples;
+uniform float u_average_albedo;
+
+// random
+uniform vec3 u_samples_3d[500];
 
 bool checkCRCValidityGeo(in ivec3 grid_position)
 {
@@ -121,7 +123,7 @@ void encodeRadianceToSH (in vec3 dir, in vec3 L, out vec3 L00,
 void main()
 {
     // get the coordinates of the current voxel
-    vec3 voxel_coord = vec3(gl_FragCoord.xy, vCurrentLayer+0.5);
+    vec3 voxel_coord = vec3(gl_FragCoord.xy, vCurrentLayer + 0.5);
 
     // if voxel is inactive, discard
     if(!checkCRCValidityGeo(ivec3(voxel_coord))){
@@ -157,7 +159,11 @@ void main()
     {
         vec3 uvw_dir = normalize(u_samples_3d[i] / normalized_extents);
 
-        //OCCLUSION
+#ifndef OCCLUSION
+        bool hit = true;
+        vec3 final_sample_pos = (uvw + uvw_dir) * MAX_PARAMETRIC_DIST;
+        ivec3 isample_voxel = ivec3(final_sample_pos * u_size);
+#else // OCCLUSION
         // parametric space ray marching
         bool hit = false;
         ivec3 isample_voxel = ivec3(0,0,0);
@@ -171,7 +177,7 @@ void main()
 
         float constant_offset = length(offset + (random_rot.x /vec3(u_size)));
 
-        vec3 start_pos = uvw + uvw_dir * constant_offset + uvw_dir * 0.1;
+        vec3 start_pos = uvw + uvw_dir * constant_offset;
         vec3 final_sample_pos = start_pos;
         vec3 sample_step = uvw_dir * MAX_PARAMETRIC_DIST / float(NUM_OCCLUSION_SAMPLES);
 
@@ -196,6 +202,7 @@ void main()
             final_sample_pos = (hit)? sample_pos : final_sample_pos;
             j = (hit)? NUM_OCCLUSION_SAMPLES : j;
         }
+#endif // end OCCLUSION
 
         vec3 sample_pos_wcs = u_bbox_min + vec3(isample_voxel + 0.5) * u_stratum;
         vec3 dir = sample_pos_wcs - pos_wcs;
@@ -203,8 +210,8 @@ void main()
         if (!hit || dot(dir, dir) < stratum_length * stratum_length){
             continue;
         }
-        occ_vox += 1;
 
+        occ_vox += 1;
         dir = normalize(dir);
 
         vec3 L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22;
@@ -240,7 +247,7 @@ void main()
         SH_22  += L22;
     }
 
-    float mult = 4.0 * 0.5 / float( 1 + occ_vox );
+    float mult = 4.0 * u_average_albedo / float( 1 + occ_vox );
 
     out_data0       = vec4 (SH_00.r  ,SH_00.g  ,SH_00.b  ,SH_1_1.r )   * mult + texture(caching_data[0],uvw);
     out_data1       = vec4 (SH_1_1.g ,SH_1_1.b ,SH_10.r  ,SH_10.g  )   * mult + texture(caching_data[1],uvw);

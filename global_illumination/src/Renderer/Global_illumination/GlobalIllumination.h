@@ -1,6 +1,12 @@
 #pragma once
 #include "Renderer/Voxelization/Voxelizer.h"
 
+#define USETIMER
+
+#ifdef USETIMER
+#include "Graphics/TimerGPU.h"
+#endif // USETIMER
+
 namespace GL
 {
 	struct GlobalIlluminationParameters
@@ -33,6 +39,14 @@ namespace GL
 		void ReconstructionStep(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
 			const glm::mat4& proj, const glm::mat4& view);
 	private:
+		// performance
+#ifdef USETIMER
+		TimerGPU m_voxelize_timer;
+		TimerGPU m_caching_timer;
+		TimerGPU m_bounce_timer;
+		TimerGPU m_reconstruction_timer;
+#endif // USETIMER
+	private:
 		GlobalIlluminationParameters m_params;
 		std::unique_ptr<DrawStrategy> m_rsm_stratagy;
 		Voxelizer m_voxelizer;
@@ -45,15 +59,18 @@ namespace GL
 		f32 m_spread = 1.0f;
 		bool m_occlusion_enable = true;
 
-		// bounces
+		// Bounces
 		FrameBuffer m_cachingBuffer_copy;
 		FrameBuffer* m_active_cachingBuffer;
 		i32 m_bounces;
 		u32 m_bounces_shader;
+		f32 m_average_albedo = 0.7f;
+		i32 m_num_bounces_samples = 100;
+
+		// Blend
 
 		// Reconstruction
 		f32 m_factor = 1.0f;
 		u32 m_reconstruction_shader;
-
 	};
 }

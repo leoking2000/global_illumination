@@ -37,8 +37,8 @@ uniform uint u_occlusion_enable;
 uniform int u_num_occlusion_samples;
 
 // random 
-uniform vec2 u_samples_2d[200];
-uniform vec3 u_samples_3d[200];
+uniform vec2 u_samples_2d[500];
+uniform vec3 u_samples_3d[500];
 
 bool checkCRCValidityGeo(in ivec3 grid_position)
 {

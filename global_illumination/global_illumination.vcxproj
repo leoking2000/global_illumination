@@ -22,6 +22,7 @@
     <ClCompile Include="src\AssetManagement\AssetManagement.cpp" />
     <ClCompile Include="src\AssetManagement\Factories\MeshFactory.cpp" />
     <ClCompile Include="src\Global\RandomNumbers.cpp" />
+    <ClCompile Include="src\Graphics\TimerGPU.cpp" />
     <ClCompile Include="src\Renderer\Global_illumination\GlobalIllumination.cpp" />
     <ClCompile Include="src\Renderer\PreviewRenderer.cpp" />
     <ClCompile Include="src\SceneGraph\NodeBehavior.cpp" />
@@ -64,6 +65,7 @@
     <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
     <ClInclude Include="src\Global\RandomNumbers.h" />
     <ClInclude Include="src\Global\Timer.h" />
+    <ClInclude Include="src\Graphics\TimerGPU.h" />
     <ClInclude Include="src\Renderer\Global_illumination\GlobalIllumination.h" />
     <ClInclude Include="src\Renderer\PreviewRenderer.h" />
     <ClInclude Include="src\Renderer\Voxelization\VoxelizerData.h" />
