@@ -12,7 +12,7 @@ namespace GL
 	struct GlobalIlluminationParameters
 	{
 		VoxelizerParameters voxelizer_params;
-		const u32 rsm_resoulution = u32(512);
+		const u32 rsm_resoulution = u32(1024);
 		u32 bounces = 1;
 	};
 

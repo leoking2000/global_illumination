@@ -154,9 +154,5 @@ void main()
 
     gi_diffuse_color = max(gi_diffuse_color, vec3(0));
 
-    vec3 final_color = gi_diffuse_color * u_factor;
-    final_color = final_color / (final_color + vec3(1.0));
-    final_color = pow(final_color, vec3(1.0/2.2)); 
-
-    out_color = vec4(final_color, 1.0);
+    out_color = vec4(gi_diffuse_color * u_factor, 1.0);
 }

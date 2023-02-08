@@ -21,7 +21,7 @@ namespace GL
 		void Init();
 		void Voxelize(Scene& scene);
 
-		const FrameBuffer& GetVoxels() const;
+		const FrameBuffer& GetVoxels(bool dilated = true) const;
 		const VoxelizerData& GetData() const;
 
 		u32 m_screen_filled_quad;

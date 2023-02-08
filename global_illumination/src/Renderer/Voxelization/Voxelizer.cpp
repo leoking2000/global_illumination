@@ -40,10 +40,12 @@ namespace GL
 		DilationStep();
 	}
 
-	const FrameBuffer& Voxelizer::GetVoxels() const
+	const FrameBuffer& Voxelizer::GetVoxels(bool dilated) const
 	{
-		return m_voxels_dilated;
-		//return m_merge_voxels;
+		if (dilated) {
+			return m_voxels_dilated;
+		}
+		return m_merge_voxels;
 	}
 
 	const VoxelizerData& Voxelizer::GetData() const

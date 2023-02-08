@@ -163,6 +163,9 @@ namespace GL
 		shader.SetUniform("u_RSM_depth", 1);
 		shader.SetUniform("u_RSM_flux", 2);
 		shader.SetUniform("u_RSM_normal", 3);
+
+		m_voxelizer.GetVoxels(false).BindColorTexture(0, 4);
+		shader.SetUniform("u_voxels_oclusion", 4);
 		
 		// Light
 		glm::mat4 light_mvp = scene.light.LightProj() * scene.light.LightView();
@@ -242,6 +245,9 @@ namespace GL
 
 			m_voxelizer.GetVoxels().BindColorTexture(0, 0);
 			shader.SetUniform("u_voxels_musked", 0);
+
+			m_voxelizer.GetVoxels(false).BindColorTexture(0, 1);
+			shader.SetUniform("u_voxels_oclusion", 1);
 
 			shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
 			shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());

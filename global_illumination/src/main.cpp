@@ -100,8 +100,8 @@ public:
 
     void SetUpSceneTripodroom()
     {
-        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 0.0f, 0.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 10.0f;
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(-4.8f, 3.0f, 0.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = 11.0f;
 
         scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -119,8 +119,8 @@ public:
     void GameSetUp() override
     {        
         //SetUpSceneFactory();
-        SetUpSponza();
-        //SetUpGITestBox();
+        //SetUpSponza();
+        SetUpGITestBox();
         //SetUpSceneTripodroom();
 
         LOGINFO("Starting Test Game!!!");

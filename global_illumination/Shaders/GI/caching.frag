@@ -202,8 +202,8 @@ void main()
                 sample_pos = start_pos + j * voxel_marching_step - 0.1 * voxel_marching_dir;
                 voxel_pos = (sample_pos - u_bbox_min) / u_occlusion_bextents;
 
-                //uvec4 slice = textureLod(u_voxels_oclusion, voxel_pos.xy, 0);
-                uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
+                uvec4 slice = textureLod(u_voxels_oclusion, voxel_pos.xy, 0);
+                //uvec4 slice = textureLod(u_voxels_musked, voxel_pos.xy, 0);
                 uint voxel_z = uint(u_size.z - floor((voxel_pos.z * u_size.z) + 0.0) - 1);
 
                 // get an unsigned vec4 containing the current position (marked as 1)

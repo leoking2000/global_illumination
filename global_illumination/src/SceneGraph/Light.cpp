@@ -18,12 +18,12 @@ namespace GL
 		if (m_type == LightType::DIRECTIONAL)
 		{
 			m_light_proj = glm::ortho(-12.0f, 12.0f, -12.0f, 12.0f, 0.1f, 100.0f);
-			m_radiance = glm::vec3(50.0f);
+			m_radiance = glm::vec3(100.0f);
 		}
 		else
 		{
 			m_light_proj = glm::perspective<f32>(m_outercutOffAngle + PI / 8.0f, 1, 0.1f, 1000.0f);
-			m_radiance = glm::vec3(50.0f);
+			m_radiance = glm::vec3(100.0f);
 		}
 	}
 
