@@ -36,6 +36,7 @@ namespace GL
 	private:
 		void CachingStep(Scene& scene);
 		void BounceStep();
+		void BlendStep();
 		void ReconstructionStep(Scene& scene, const FrameBuffer& shading_buffer, const FrameBuffer& geometryBuffer,
 			const glm::mat4& proj, const glm::mat4& view);
 	private:
@@ -44,6 +45,7 @@ namespace GL
 		TimerGPU m_voxelize_timer;
 		TimerGPU m_caching_timer;
 		TimerGPU m_bounce_timer;
+		TimerGPU m_blend_timer;
 		TimerGPU m_reconstruction_timer;
 #endif // USETIMER
 	private:
@@ -52,25 +54,33 @@ namespace GL
 		Voxelizer m_voxelizer;
 
 		// Caching
-		FrameBuffer m_cachingBuffer;
 		u32 m_caching_shader;
-		i32 m_num_RSM_samples = 100;
+		i32 m_num_RSM_samples = 200;
 		i32 m_num_occlusion_sample = 10;
 		f32 m_spread = 1.0f;
 		bool m_occlusion_enable = true;
 
 		// Bounces
-		FrameBuffer m_cachingBuffer_copy;
-		FrameBuffer* m_active_cachingBuffer;
 		i32 m_bounces;
 		u32 m_bounces_shader;
 		f32 m_average_albedo = 0.7f;
-		i32 m_num_bounces_samples = 100;
+		i32 m_num_bounces_samples = 200;
 
 		// Blend
+		u32 m_blend_shader;
+		f32 m_blend_factor = 0.9;
 
 		// Reconstruction
 		f32 m_factor = 1.0f;
 		u32 m_reconstruction_shader;
+
+		// light probe volume buffers
+		FrameBuffer m_cachingBuffer_1;
+		FrameBuffer m_cachingBuffer_2;
+		FrameBuffer m_cachingBuffer_3;
+
+		FrameBuffer* m_current_cachingBuffer;
+		FrameBuffer* m_bounce_target;
+		FrameBuffer* m_previous_cachingBuffer;
 	};
 }

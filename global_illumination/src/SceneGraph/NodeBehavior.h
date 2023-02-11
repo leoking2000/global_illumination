@@ -7,7 +7,7 @@ namespace GL
 	class NodeBehavior
 	{
 	public:
-		virtual void Update(f32 dt, const Transform& transform) {};
+		virtual void Update(f32 dt, Transform& transform) {};
 		virtual void Draw(const DrawStrategy& strategy,
 			const glm::mat4& proj_matrix, const glm::mat4& view_matrix, const glm::mat4& model_matrix) {};
 	};

@@ -2,6 +2,35 @@
 #include "AssetManagement/AssetManagement.h"
 #include <memory>
 
+class Shutter : public GL::GeometryNodeBehavior
+{
+public:
+    Shutter(u32 model_id, f32 speed)
+        :
+        GL::GeometryNodeBehavior(model_id),
+        m_speed(speed)
+    {
+    }
+
+    void Update(f32 dt, GL::Transform& transform) override
+    {
+        transform.eulerRot.z += m_direction * m_speed * dt;
+
+        if (transform.eulerRot.z > 0) {
+            m_direction = -1;
+            transform.eulerRot.z = 0.0f;
+        }
+
+        if (transform.eulerRot.z < -90.0f) {
+            m_direction = 1;
+            transform.eulerRot.z = -90.0f;
+        }
+    };
+private:
+    f32 m_speed;
+    f32 m_direction = -1;
+};
+
 class Game : public GL::Application
 {
 public:
@@ -116,12 +145,45 @@ public:
         scene.AddChild(std::move(node));
     }
 
+    void SetUpRoom()
+    {
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 3.0f, 1.6f);
+        params.renderer_params.gi_params.voxelizer_params.size = 22.0f;
+
+        scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        scene.camera.pos = glm::vec3(0.0f, 1.0f, 7.0f);
+        scene.camera.dir = glm::vec3(0.0f, 0.0f, -1.0f);
+
+        u32 main = GL::AssetManagement::LoadFromObjFile("\\room\\room.obj");
+        GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
+        scene.AddChild(std::move(node));
+
+        GL::Transform t;
+
+        u32 shutter = GL::AssetManagement::LoadFromObjFile("\\room\\shutter.obj");
+
+        t.pos = glm::vec3(0.5f, 2.05f, -2.0f);
+        GL::Node shutter1_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        scene.AddChild(std::move(shutter1_node));
+
+        t.pos = glm::vec3(0.5f, 2.05f, 0.0f);
+        GL::Node shutter2_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        scene.AddChild(std::move(shutter2_node));
+
+        t.pos = glm::vec3(0.5f, 2.05f, 2.0f);
+        GL::Node shutter3_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        scene.AddChild(std::move(shutter3_node));
+    }
+
     void GameSetUp() override
     {        
         //SetUpSceneFactory();
         //SetUpSponza();
-        SetUpGITestBox();
+        //SetUpGITestBox();
         //SetUpSceneTripodroom();
+        SetUpRoom();
 
         LOGINFO("Starting Test Game!!!");
     }
