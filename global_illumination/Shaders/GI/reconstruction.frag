@@ -116,7 +116,7 @@ void main()
         sample_irradiance = 
             dotSH(normal_wcs, L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22);
 
-        sample_irradiance = YCoCg2RGB(sample_irradiance);
+        //sample_irradiance = YCoCg2RGB(sample_irradiance);
 
         gi_diffuse_color += sample_irradiance;
     }

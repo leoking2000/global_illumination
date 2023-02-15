@@ -56,7 +56,7 @@ namespace GL
 		// Caching
 		u32 m_caching_shader;
 		i32 m_num_RSM_samples = 200;
-		i32 m_num_occlusion_sample = 10;
+		i32 m_num_occlusion_sample = 20;
 		f32 m_spread = 1.0f;
 		bool m_occlusion_enable = true;
 

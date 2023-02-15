@@ -43,7 +43,15 @@ public:
 
     void SetUpSceneFactory()
     {
-        scene.light = GL::Light(glm::vec3(0.0f, 6.0f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 5.0f, 0.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
+
+        scene.light = GL::Light(glm::vec3(-5.592f, 5.662f, -1.027f), glm::vec3(0.0f, 0.0f, -1.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
+
+        scene.camera.pos = glm::vec3(7.5f, 5.5f, 0.4f);
+        scene.camera.dir = glm::vec3(-1.0f, 0.0f, 0.0f);
+
         u32 main = GL::AssetManagement::LoadFromObjFile("\\factory\\factory.obj");
         GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
         scene.AddChild(std::move(node));
@@ -51,7 +59,15 @@ public:
 
     void SetUpSponza()
     {
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 5.0f, 0.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = 60.0f;
+
         scene.light = GL::Light(glm::vec3(-2.0f, 6.5f, -1.7f), glm::vec3(1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
+
+        scene.camera.pos = glm::vec3(0.0f, 6.5f, 7.333f);
+        scene.camera.dir = glm::vec3(0.0f, 0.0f, -1.0f);
+
         u32 main = GL::AssetManagement::LoadFromObjFile("\\sponza\\sponza_dualcolor.obj");
         GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
         scene.AddChild(std::move(node));
@@ -130,13 +146,16 @@ public:
     void SetUpSceneTripodroom()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(-4.8f, 3.0f, 0.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 11.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = 30.0f;
 
-        scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light = GL::Light(glm::vec3(-2.408f, 1.303f, -2.680f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_cutOffAngle = 0.02f;
+        scene.light.m_outercutOffAngle = 0.075f;
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
 
-        scene.camera.pos = glm::vec3(0.0f, 0.0f, 0.0f);
-        scene.camera.dir = glm::vec3(1.0f, 0.0f, 1.0f);
+        scene.camera.pos = glm::vec3(-2.0f, 1.2f, -2.4f);
+        scene.camera.dir = glm::vec3(0.0f, 0.0f, 1.0f);
 
         GL::Transform t;
 
@@ -148,9 +167,10 @@ public:
     void SetUpRoom()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 3.0f, 1.6f);
-        params.renderer_params.gi_params.voxelizer_params.size = 22.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
 
         scene.camera.pos = glm::vec3(0.0f, 1.0f, 7.0f);

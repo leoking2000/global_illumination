@@ -12,7 +12,7 @@ namespace GL
 	Light::Light(const glm::vec3 pos, const glm::vec3 dir, LightType type)
 		:
 		m_pos(pos),
-		m_dir(dir),
+		m_dir(glm::normalize(dir)),
 		m_type(type)
 	{
 		if (m_type == LightType::DIRECTIONAL)

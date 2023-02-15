@@ -27,13 +27,13 @@ namespace GL
 		glm::vec3 m_pos;
 		glm::vec3 m_dir;
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	private:
+
 		glm::vec3 m_radiance = glm::vec3(1.0f);
 		LightType m_type;
 
 		f32 m_cutOffAngle = glm::radians(12.5f);
 		f32 m_outercutOffAngle = glm::radians(17.5f);
-	private:
+
 		glm::mat4 m_light_proj;
 		f32 m_shadow_bias = 0.002f;
 	};

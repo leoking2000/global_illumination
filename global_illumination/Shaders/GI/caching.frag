@@ -230,7 +230,7 @@ void main()
         // store the radiance in the incoming direction
         vec3 sh_00, sh_1_1, sh_10, sh_11, sh_2_2, sh_2_1, sh_20, sh_21, sh_22;
 
-        color = RGB2YCoCg(color);
+        //color = RGB2YCoCg(color);
         encodeRadianceToSH(-dir, color, sh_00, sh_1_1, sh_10, sh_11, sh_2_2, sh_2_1, sh_20, sh_21, sh_22);
 
         SH_00  += sh_00;

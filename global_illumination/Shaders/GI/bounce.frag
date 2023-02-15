@@ -249,7 +249,7 @@ void main()
         SH_22  += L22;
     }
 
-    float mult = 4.0 * u_average_albedo / float( 1 + occ_vox );
+    float mult = 10.0 * u_average_albedo / float( 1 + occ_vox );
 
     out_data0       = vec4 (SH_00.r  ,SH_00.g  ,SH_00.b  ,SH_1_1.r )   * mult + texture(caching_data[0],uvw);
     out_data1       = vec4 (SH_1_1.g ,SH_1_1.b ,SH_10.r  ,SH_10.g  )   * mult + texture(caching_data[1],uvw);
