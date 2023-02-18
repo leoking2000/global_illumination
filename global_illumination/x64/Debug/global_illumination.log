@@ -1,3 +1,2 @@
 ﻿  main.cpp
-C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\global_illumination\src\Renderer\Global_illumination\GlobalIllumination.h(71,22): warning C4305: 'initializing': truncation from 'double' to 'f32'
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

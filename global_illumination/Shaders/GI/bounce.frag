@@ -8,10 +8,9 @@ layout(location = 5) out vec4 out_data5;
 layout(location = 6) out vec4 out_data6;
 
 flat in int vCurrentLayer;
-const float pi = 3.1415936;
 
 #define NUM_OCCLUSION_SAMPLES 4
-#define MAX_PARAMETRIC_DIST 0.5
+#define MAX_PARAMETRIC_DIST 1
 #define OCCLUSION
 
 // voxel
@@ -22,14 +21,32 @@ uniform vec3 u_bbox_min;
 uniform vec3 u_stratum;
 uniform sampler3D caching_data[7];
 
-uniform usampler2D u_voxels_oclusion;
-
 // settings
 uniform int u_num_samples;
 uniform float u_average_albedo;
 
 // random
-uniform vec3 u_samples_3d[500];
+uniform int u_random_texture_size; // 10000
+uniform sampler1D u_random_texture; // std::uniform_real_distribution(-1, 1)
+
+// A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
+uint hash( uint x ) {
+    x += ( x << 10u );
+    x ^= ( x >>  6u );
+    x += ( x <<  3u );
+    x ^= ( x >> 11u );
+    x += ( x << 15u );
+    return x;
+}
+// Compound versions of the hashing algorithm I whipped together.
+uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
+
+vec4 getRandom(in uint seed, in int i)
+{
+    int pos_start = int(float(seed) * u_random_texture_size);
+    int pos = (pos_start + i) % u_random_texture_size;
+    return texelFetch(u_random_texture, pos, 0);
+}
 
 bool checkCRCValidityGeo(in ivec3 grid_position)
 {
@@ -52,19 +69,6 @@ bool checkCRCValidityGeo(in ivec3 grid_position)
     
     // check if the current position is marked as occupied
     return ((res.r | res.g | res.b | res.a) > 0u);
-}
-
-float rand1n(vec2 seed)
-{
-    highp vec3 abc = vec3(12.9898, 78.233, 43758.5453);
-    highp float dt = dot(seed.xy, vec2(abc.x, abc.y));
-    highp float sn = mod(dt, 2 * pi);
-    return max(0.01, fract(sin(sn) * abc.z));
-}
-
-vec2 getSamplingSeed(vec2 unique)
-{
-    return unique.xy * 17;
 }
 
 vec3 dotSH (in vec3 direction, in vec3 L00,
@@ -157,9 +161,12 @@ void main()
     vec3 L00, L1_1, L10, L11, L2_2, L2_1, L20, L21, L22;
     vec4 data0, data1, data2, data3, data4, data5, data6;
 
+    uint seed = hash(uvec3(voxel_coord));
+
     for (int i = 0; i < u_num_samples; i++)
     {
-        vec3 uvw_dir = normalize(u_samples_3d[i] / normalized_extents);
+        vec4 random = getRandom(seed, i);
+        vec3 uvw_dir = normalize(random.xyz / normalized_extents);
 
 #ifndef OCCLUSION
         bool hit = true;
@@ -173,11 +180,8 @@ void main()
         // skip one voxel
         vec3 offset = 0.5 / vec3(u_size);
 
-        vec2 seed = getSamplingSeed(vec2(gl_FragCoord));
-        int random_seed = int(rand1n(seed) * u_num_samples);
-        vec3 random_rot = u_samples_3d[random_seed] * 0.5 + 0.5;
-
-        float constant_offset = length(offset + (random_rot.x /vec3(u_size)));
+        float random_rot = random.a * 0.5 + 0.5;
+        float constant_offset = length(offset + (random_rot / vec3(u_size)));
 
         vec3 start_pos = uvw + uvw_dir * constant_offset;
         vec3 final_sample_pos = start_pos;
@@ -187,7 +191,7 @@ void main()
         {
             vec3 sample_pos = start_pos + j * sample_step;
 
-            uvec4 slice = textureLod(u_voxels_oclusion, sample_pos.xy, 0);
+            uvec4 slice = textureLod(u_voxels_musked, sample_pos.xy, 0);
             uint voxel_z = uint(128 - floor((sample_pos.z * 128) + 0.0) - 1);
 
             // get an unsigned vec4 containing the current position (marked as 1)
@@ -249,7 +253,7 @@ void main()
         SH_22  += L22;
     }
 
-    float mult = 10.0 * u_average_albedo / float( 1 + occ_vox );
+    float mult = 4.0 * u_average_albedo / (1 + occ_vox);
 
     out_data0       = vec4 (SH_00.r  ,SH_00.g  ,SH_00.b  ,SH_1_1.r )   * mult + texture(caching_data[0],uvw);
     out_data1       = vec4 (SH_1_1.g ,SH_1_1.b ,SH_10.r  ,SH_10.g  )   * mult + texture(caching_data[1],uvw);

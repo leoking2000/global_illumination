@@ -1,10 +1,11 @@
 #include "Graphics/OpenGL.h"
 #include "GlobalIllumination.h"
+#include "AssetManagement/Factories/TextureFactory.h"
 #include "AssetManagement/AssetManagement.h"
 #include "Renderer/DrawStratagies/GeometryDrawStratagy.h"
 #include "Global/RandomNumbers.h"
-#include "imgui/imgui.h"
 #include "Global/Logger.h"
+#include "imgui/imgui.h"
 #include <algorithm>
 
 #ifdef USETIMER
@@ -28,7 +29,8 @@ namespace GL
 		m_cachingBuffer_3(
 			(u32)m_voxelizer.GetData().dimensions.x, (u32)m_voxelizer.GetData().dimensions.y, (u32)m_voxelizer.GetData().dimensions.z, 7,
 			TextureMinFiltering::MIN_LINEAR_MIPMAP_LINEAR, TextureMagFiltering::MAG_LINEAR, TextureFormat::RGBA32F),
-		m_bounces(params.bounces)
+		m_bounces(params.bounces),
+		m_random_texture(TextureFactory::CreateRandom1D(m_random_size))
 	{
 
 	}
@@ -261,17 +263,19 @@ namespace GL
 			m_voxelizer.GetVoxels().BindColorTexture(0, 0);
 			shader.SetUniform("u_voxels_musked", 0);
 
-			m_voxelizer.GetVoxels(false).BindColorTexture(0, 1);
-			shader.SetUniform("u_voxels_oclusion", 1);
-
 			shader.SetUniform("u_size", glm::ivec3(m_voxelizer.GetData().dimensions));
 			shader.SetUniform("u_bbox_max", m_voxelizer.GetData().voxelizationArea.GetMax());
 			shader.SetUniform("u_bbox_min", m_voxelizer.GetData().voxelizationArea.GetMin());
 			shader.SetUniform("u_stratum", stratum);
 
 			shader.SetUniform("u_num_samples", m_num_bounces_samples);
-			shader.SetUniform("u_samples_3d", RandomNumbers::GetHaltonSequence3DSphereOnSurface(), m_num_bounces_samples);
 			shader.SetUniform("u_average_albedo", m_average_albedo);
+
+			shader.SetUniform("u_random_texture_size", (i32)m_random_size);
+
+			m_random_texture.Bind(1);
+			shader.SetUniform("u_random_texture", 1);
+
 
 			shader.Bind();
 			mesh.m_vertexArray.Bind();

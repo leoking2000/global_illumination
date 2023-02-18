@@ -2,13 +2,14 @@
 #include "Renderer/Voxelization/Voxelizer.h"
 
 #define USETIMER
-
 #ifdef USETIMER
 #include "Graphics/TimerGPU.h"
 #endif // USETIMER
 
 namespace GL
 {
+	class Texture;
+
 	struct GlobalIlluminationParameters
 	{
 		VoxelizerParameters voxelizer_params;
@@ -55,7 +56,7 @@ namespace GL
 
 		// Caching
 		u32 m_caching_shader;
-		i32 m_num_RSM_samples = 200;
+		i32 m_num_RSM_samples = 100;
 		i32 m_num_occlusion_sample = 20;
 		f32 m_spread = 1.0f;
 		bool m_occlusion_enable = true;
@@ -63,12 +64,15 @@ namespace GL
 		// Bounces
 		i32 m_bounces;
 		u32 m_bounces_shader;
-		f32 m_average_albedo = 0.7f;
-		i32 m_num_bounces_samples = 200;
+		f32 m_average_albedo = 0.8f;
+		i32 m_num_bounces_samples = 80;
+
+		const u32 m_random_size = 10000;
+		Texture m_random_texture;
 
 		// Blend
 		u32 m_blend_shader;
-		f32 m_blend_factor = 0.9;
+		f32 m_blend_factor = 0.9f;
 
 		// Reconstruction
 		f32 m_factor = 1.0f;

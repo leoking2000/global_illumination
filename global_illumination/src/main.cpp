@@ -76,7 +76,7 @@ public:
     void SetUpGITestBox()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 0.0f, 6.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 10.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = 11.0f;
 
         scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -170,7 +170,7 @@ public:
         params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
-        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_radiance = glm::vec3(200);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
 
         scene.camera.pos = glm::vec3(0.0f, 1.0f, 7.0f);
@@ -234,7 +234,6 @@ public:
     }
 
 };
-
 
 int main()
 {

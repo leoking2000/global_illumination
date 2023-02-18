@@ -51,6 +51,7 @@ namespace GL
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_RESIZABLE, params.isResizable ? GL_TRUE : GL_FALSE);
+		glfwWindowHint(GLFW_SAMPLES, 4);
 
 		// Create Window
 		GLFWwindow* glfw_window;
@@ -78,6 +79,7 @@ namespace GL
 		// vsync
 		glfwSwapInterval(params.vsync ? 1 : 0);
 
+		glCall(glEnable(GL_MULTISAMPLE));
 		glCall(glViewport(0, 0, params.width, params.height));
 
 		// Initialize ImGui
