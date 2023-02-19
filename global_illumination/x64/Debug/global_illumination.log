@@ -1,2 +1,6 @@
-﻿  main.cpp
+﻿  Application.cpp
+  GlobalIllumination.cpp
+  Renderer.cpp
+  main.cpp
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   global_illumination.vcxproj -> C:\Users\User\Desktop\dev\computer_graphics\ptixiaki\global_illumination\x64\Debug\global_illumination.exe

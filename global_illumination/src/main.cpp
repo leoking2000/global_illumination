@@ -5,15 +5,31 @@
 class Shutter : public GL::GeometryNodeBehavior
 {
 public:
-    Shutter(u32 model_id, f32 speed)
+    Shutter(u32 model_id, f32 speed, GL::Window* win)
         :
         GL::GeometryNodeBehavior(model_id),
-        m_speed(speed)
+        m_speed(speed),
+        m_window(win)
     {
     }
 
     void Update(f32 dt, GL::Transform& transform) override
     {
+        if (m_window)
+        {
+            if(m_window->KeyIsPress(KEY_K) && m_key_is_pressed == false)
+            {
+                m_move = !m_move;
+                m_key_is_pressed = true;
+            }
+            else if(!m_window->KeyIsPress(KEY_K))
+            {
+                m_key_is_pressed = false;
+            }
+        }
+
+        if (m_move == false) return;
+
         transform.eulerRot.z += m_direction * m_speed * dt;
 
         if (transform.eulerRot.z > 0) {
@@ -27,6 +43,10 @@ public:
         }
     };
 private:
+    GL::Window* m_window = nullptr;
+    bool m_key_is_pressed = false;
+
+    bool m_move = true;
     f32 m_speed;
     f32 m_direction = -1;
 };
@@ -167,7 +187,7 @@ public:
     void SetUpRoom()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 3.0f, 1.6f);
-        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = 30.0f;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(200);
@@ -185,15 +205,15 @@ public:
         u32 shutter = GL::AssetManagement::LoadFromObjFile("\\room\\shutter.obj");
 
         t.pos = glm::vec3(0.5f, 2.05f, -2.0f);
-        GL::Node shutter1_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        GL::Node shutter1_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
         scene.AddChild(std::move(shutter1_node));
 
         t.pos = glm::vec3(0.5f, 2.05f, 0.0f);
-        GL::Node shutter2_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        GL::Node shutter2_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
         scene.AddChild(std::move(shutter2_node));
 
         t.pos = glm::vec3(0.5f, 2.05f, 2.0f);
-        GL::Node shutter3_node(std::make_unique<Shutter>(shutter, 50.0f), t);
+        GL::Node shutter3_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
         scene.AddChild(std::move(shutter3_node));
     }
 

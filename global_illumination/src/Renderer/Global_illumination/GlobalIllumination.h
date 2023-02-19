@@ -72,7 +72,7 @@ namespace GL
 
 		// Blend
 		u32 m_blend_shader;
-		f32 m_blend_factor = 0.9f;
+		f32 m_blend_factor = 0.8f;
 
 		// Reconstruction
 		f32 m_factor = 1.0f;
