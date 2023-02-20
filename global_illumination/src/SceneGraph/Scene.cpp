@@ -1,5 +1,5 @@
 #include "Scene.h"
-
+#include "imgui/imgui.h"
 
 namespace GL
 {
@@ -12,7 +12,9 @@ namespace GL
 
 	void Scene::Update(f32 dt)
 	{
+		ImGui::Begin("Scene");
 		root.Update(dt);
+		ImGui::End();
 	}
 
 	void Scene::Draw(const DrawStrategy& strategy, const glm::mat4& proj, const glm::mat4& view)

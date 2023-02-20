@@ -21,6 +21,7 @@ void main(void)
 
     if(u_depth == 0)
     {
+        color = pow(color, vec3(1.0/2.2));
         out_color = vec4(color, 1.0);
     }
     else

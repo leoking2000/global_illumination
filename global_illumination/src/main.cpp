@@ -1,14 +1,16 @@
 ﻿#include "Application/Application.h"
 #include "AssetManagement/AssetManagement.h"
+#include "imgui/imgui.h"
 #include <memory>
 
 class Shutter : public GL::GeometryNodeBehavior
 {
 public:
-    Shutter(u32 model_id, f32 speed, GL::Window* win)
+    Shutter(u32 model_id, f32 speed, u32 id, GL::Window* win)
         :
         GL::GeometryNodeBehavior(model_id),
         m_speed(speed),
+        m_id(id),
         m_window(win)
     {
     }
@@ -17,36 +19,49 @@ public:
     {
         if (m_window)
         {
-            if(m_window->KeyIsPress(KEY_K) && m_key_is_pressed == false)
+            if (m_window->KeyIsPress(KEY_K) && m_key_is_pressed == false)
             {
                 m_move = !m_move;
                 m_key_is_pressed = true;
             }
-            else if(!m_window->KeyIsPress(KEY_K))
+            else if (!m_window->KeyIsPress(KEY_K))
             {
                 m_key_is_pressed = false;
             }
         }
 
+        ImGui(transform);
+
         if (m_move == false) return;
 
         transform.eulerRot.z += m_direction * m_speed * dt;
 
-        if (transform.eulerRot.z > 0) {
+        if (transform.eulerRot.z > 5) {
             m_direction = -1;
-            transform.eulerRot.z = 0.0f;
+            transform.eulerRot.z = 5.0f;
         }
 
-        if (transform.eulerRot.z < -90.0f) {
+        if (transform.eulerRot.z < -100.0f) {
             m_direction = 1;
-            transform.eulerRot.z = -90.0f;
+            transform.eulerRot.z = -100.0f;
         }
     };
+
+    void ImGui(GL::Transform& transform)
+    {
+        if (ImGui::CollapsingHeader(("Shutter" + std::to_string(m_id)).c_str()))
+        {
+            ImGui::PushID(m_id);
+            ImGui::DragFloat("Rot", &transform.eulerRot.z);
+            ImGui::PopID();
+        }
+    }
+
 private:
     GL::Window* m_window = nullptr;
     bool m_key_is_pressed = false;
-
-    bool m_move = true;
+    bool m_move = false;
+    u32 m_id;
     f32 m_speed;
     f32 m_direction = -1;
 };
@@ -67,7 +82,7 @@ public:
         params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
 
         scene.light = GL::Light(glm::vec3(-5.592f, 5.662f, -1.027f), glm::vec3(0.0f, 0.0f, -1.0f), GL::LightType::SPOTLIGHT);
-        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_radiance = glm::vec3(50);
 
         scene.camera.pos = glm::vec3(7.5f, 5.5f, 0.4f);
         scene.camera.dir = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -83,7 +98,7 @@ public:
         params.renderer_params.gi_params.voxelizer_params.size = 60.0f;
 
         scene.light = GL::Light(glm::vec3(-2.0f, 6.5f, -1.7f), glm::vec3(1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
-        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_radiance = glm::vec3(50);
 
         scene.camera.pos = glm::vec3(0.0f, 6.5f, 7.333f);
         scene.camera.dir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -100,6 +115,7 @@ public:
 
         scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
+        scene.light.m_radiance = glm::vec3(50.0f);
 
         scene.camera.pos = glm::vec3(-1.0f, 0.0f, 3.0f);
         scene.camera.dir = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -169,7 +185,7 @@ public:
         params.renderer_params.gi_params.voxelizer_params.size = 30.0f;
 
         scene.light = GL::Light(glm::vec3(-2.408f, 1.303f, -2.680f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
-        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_radiance = glm::vec3(50);
         scene.light.m_cutOffAngle = 0.02f;
         scene.light.m_outercutOffAngle = 0.075f;
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -187,10 +203,10 @@ public:
     void SetUpRoom()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 3.0f, 1.6f);
-        params.renderer_params.gi_params.voxelizer_params.size = 30.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
-        scene.light.m_radiance = glm::vec3(200);
+        scene.light.m_radiance = glm::vec3(50);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
 
         scene.camera.pos = glm::vec3(0.0f, 1.0f, 7.0f);
@@ -205,15 +221,15 @@ public:
         u32 shutter = GL::AssetManagement::LoadFromObjFile("\\room\\shutter.obj");
 
         t.pos = glm::vec3(0.5f, 2.05f, -2.0f);
-        GL::Node shutter1_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
+        GL::Node shutter1_node(std::make_unique<Shutter>(shutter, 20.0f, 1, &window), t);
         scene.AddChild(std::move(shutter1_node));
 
         t.pos = glm::vec3(0.5f, 2.05f, 0.0f);
-        GL::Node shutter2_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
+        GL::Node shutter2_node(std::make_unique<Shutter>(shutter, 20.0f, 2, &window), t);
         scene.AddChild(std::move(shutter2_node));
 
         t.pos = glm::vec3(0.5f, 2.05f, 2.0f);
-        GL::Node shutter3_node(std::make_unique<Shutter>(shutter, 50.0f, &window), t);
+        GL::Node shutter3_node(std::make_unique<Shutter>(shutter, 20.0f, 3, &window), t);
         scene.AddChild(std::move(shutter3_node));
     }
 
@@ -252,7 +268,6 @@ public:
             window.CloseWindow();
         }
     }
-
 };
 
 int main()

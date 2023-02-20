@@ -110,7 +110,7 @@ namespace GL
 			ImGui::SliderInt("RSM Samples", &m_num_RSM_samples, 0, 500);
 			ImGui::DragFloat("Spread", &m_spread, 0.001f, 0, 2);
 			ImGui::Checkbox("Occlusion Enable", &m_occlusion_enable);
-			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 20);
+			ImGui::SliderInt("Occlusion Samples", &m_num_occlusion_sample, 1, 50);
 
 			ImGui::Text("Bounces Step");
 			ImGui::SliderInt("Bounces", &m_bounces, 0, 5);
