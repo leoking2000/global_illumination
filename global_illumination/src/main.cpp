@@ -79,7 +79,8 @@ public:
     void SetUpSceneFactory()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 5.0f, 0.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(22.0f, 11.0f, 14.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         scene.light = GL::Light(glm::vec3(-5.592f, 5.662f, -1.027f), glm::vec3(0.0f, 0.0f, -1.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
@@ -94,8 +95,9 @@ public:
 
     void SetUpSponza()
     {
-        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 5.0f, 0.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 60.0f;
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 8.0f, 0.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(18.0f, 16.0f, 32.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         scene.light = GL::Light(glm::vec3(-2.0f, 6.5f, -1.7f), glm::vec3(1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
@@ -111,7 +113,7 @@ public:
     void SetUpGITestBox()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 0.0f, 6.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 11.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(11.0f);
 
         scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -182,7 +184,8 @@ public:
     void SetUpSceneTripodroom()
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(-4.8f, 3.0f, 0.0f);
-        params.renderer_params.gi_params.voxelizer_params.size = 30.0f;
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(30.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         scene.light = GL::Light(glm::vec3(-2.408f, 1.303f, -2.680f), glm::vec3(0.0f, 0.0f, 1.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
@@ -202,8 +205,9 @@ public:
 
     void SetUpRoom()
     {
-        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 3.0f, 1.6f);
-        params.renderer_params.gi_params.voxelizer_params.size = 40.0f;
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 2.5f, 1.6f);
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(8.0f, 7.0f, 12.5f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);

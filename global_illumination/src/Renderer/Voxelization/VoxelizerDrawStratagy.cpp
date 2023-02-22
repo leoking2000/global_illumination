@@ -11,7 +11,7 @@ namespace GL
 	VoxelizerDrawStratagy::VoxelizerDrawStratagy(const VoxelizerData& data)
 		:
 		m_data(data),
-		m_framebuffer(data.resolution, data.resolution, 3, 
+		m_framebuffer(data.max_dimension, data.max_dimension, 3,
 			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI, FrameBufferMode::Layered)
 	{
 		Init();

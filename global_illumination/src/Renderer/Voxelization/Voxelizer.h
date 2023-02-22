@@ -1,13 +1,15 @@
 #pragma once
 #include "VoxelizerData.h"
 #include "SceneGraph/Scene.h"
+#include "Graphics/AtomicCounter.h"
 
 namespace GL
 {
 	struct VoxelizerParameters
 	{
 		glm::vec3 center = glm::vec3(0.0f, 5.0f, 0.0f);
-		f32 size = 30.0f;
+		glm::vec3 size = glm::vec3(30.0f);
+		u32 resolution = 128;
 	};
 
 	class Voxelizer
@@ -20,6 +22,8 @@ namespace GL
 	public:
 		void Init();
 		void Voxelize(Scene& scene);
+
+		void ImGui();
 
 		const FrameBuffer& GetVoxels(bool dilated = true) const;
 		const VoxelizerData& GetData() const;
@@ -39,5 +43,8 @@ namespace GL
 
 		FrameBuffer m_voxels_dilated;
 		u32 m_dilationShader;
+
+		AtomicCounter m_atomic_counter;
+		u32 m_num_active_voxels;
 	};
 }

@@ -2,6 +2,7 @@
 #include "Voxelizer.h"
 #include "VoxelizerDrawStratagy.h"
 #include "AssetManagement/AssetManagement.h"
+#include "imgui/imgui.h"
 
 #include "Global/Logger.h"
 
@@ -9,7 +10,7 @@ namespace GL
 {
 	Voxelizer::Voxelizer(const VoxelizerParameters& params)
 		:
-		m_data(params.center, params.size),
+		m_data(AABB(params.center, params.size), params.resolution),
 		m_merge_voxels((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
 			TextureMinFiltering::MIN_NEAREST, TextureMagFiltering::MAG_NEAREST, TextureFormat::RGBA32UI),
 		m_voxels_dilated((u32)m_data.dimensions.x, (u32)m_data.dimensions.y, 1,
@@ -38,6 +39,22 @@ namespace GL
 		ThreeWayStep(scene);
 		MergeStep();
 		DilationStep();
+	}
+
+	void Voxelizer::ImGui()
+	{
+		glm::vec3 center = m_data.voxelizationArea.GetCenter();
+		glm::vec3 size   = m_data.voxelizationArea.GetSize();
+		glm::ivec3 dimensions = (glm::ivec3)m_data.dimensions;
+
+		if (ImGui::CollapsingHeader("Voxelizer"))
+		{
+			ImGui::Text("AABB Center (%f, %f, %f)", center.x, center.y, center.z);
+			ImGui::Text("AABB Size   (%f, %f, %f)", size.x, size.y, size.z);
+			ImGui::Text("------------------------");
+			ImGui::Text("Voxel Grid size (%i, %i, %i)", dimensions.x, dimensions.y, dimensions.z);
+			ImGui::Text("Active Voxels: %i/%i", m_num_active_voxels, m_data.voxel_grid_size);
+		}
 	}
 
 	const FrameBuffer& Voxelizer::GetVoxels(bool dilated) const
@@ -86,6 +103,8 @@ namespace GL
 
 	void Voxelizer::DilationStep()
 	{
+		m_atomic_counter.Reset();
+
 		m_voxels_dilated.Bind();
 
 		glCall(glViewport(0, 0, (u32)m_data.dimensions.x, (u32)m_data.dimensions.y));
@@ -101,10 +120,16 @@ namespace GL
 		shader.SetUniform("u_voxels", 1);
 
 		shader.Bind();
+		m_atomic_counter.Bind();
+
 		AssetManagement::GetMesh(m_screen_filled_quad)->Draw();
+
+		m_atomic_counter.UnBind();
 		shader.UnBind();
 
 		m_voxels_dilated.UnBind();
+
+		m_num_active_voxels = m_atomic_counter.Get();
 	}
 }
 

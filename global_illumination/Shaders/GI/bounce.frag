@@ -192,7 +192,7 @@ void main()
             vec3 sample_pos = start_pos + j * sample_step;
 
             uvec4 slice = textureLod(u_voxels_musked, sample_pos.xy, 0);
-            uint voxel_z = uint(128 - floor((sample_pos.z * 128) + 0.0) - 1);
+            uint voxel_z = uint(u_size.z - floor((sample_pos.z * u_size.z) + 0.0) - 1);
 
             // get an unsigned vec4 containing the current position (marked as 1)
             uvec4 slicePos = uvec4(0u,0u,0u,0u);

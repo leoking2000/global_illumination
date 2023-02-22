@@ -108,7 +108,7 @@
     <ClCompile Include="src\SceneGraph\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer\Voxelization\Box.cpp">
+    <ClCompile Include="src\Renderer\Voxelization\AABB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Renderer\Voxelization\VoxelizerDrawStratagy.cpp">
@@ -133,6 +133,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\TimerGPU.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\AtomicCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -254,7 +257,7 @@
     <ClInclude Include="src\SceneGraph\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Renderer\Voxelization\Box.h">
+    <ClInclude Include="src\Renderer\Voxelization\AABB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Renderer\Voxelization\VoxelizerDrawStratagy.h">
@@ -282,6 +285,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Graphics\TimerGPU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\AtomicCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

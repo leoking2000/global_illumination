@@ -124,6 +124,8 @@ namespace GL
 			ImGui::DragFloat("factor", &m_factor, 0.001f, 0, 2);
 		}
 
+		m_voxelizer.ImGui();
+
 #ifdef USETIMER
 		if (ImGui::CollapsingHeader("GI Performance"))
 		{
