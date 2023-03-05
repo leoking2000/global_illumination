@@ -100,7 +100,9 @@ public:
         params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         scene.light = GL::Light(glm::vec3(-2.0f, 6.5f, -1.7f), glm::vec3(1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        //scene.light = GL::Light(glm::vec3(30.0f, 100.0f, 0.0f), glm::vec3(-30.0f, -70.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
+        scene.light.m_shadow_bias = 0.00001f;
 
         scene.camera.pos = glm::vec3(0.0f, 6.5f, 7.333f);
         scene.camera.dir = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -207,7 +209,8 @@ public:
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 2.5f, 1.6f);
         params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(8.0f, 7.0f, 12.5f);
-        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
+        //params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(15.0f, 15.0f, 15.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 64;
 
         scene.light = GL::Light(glm::vec3(0.5f, 4.6f, -0.5f), glm::vec3(-0.84277f, -0.53905f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
@@ -239,11 +242,11 @@ public:
 
     void GameSetUp() override
     {        
-        //SetUpSceneFactory();
+        SetUpSceneFactory();
         //SetUpSponza();
         //SetUpGITestBox();
         //SetUpSceneTripodroom();
-        SetUpRoom();
+        //SetUpRoom();
 
         LOGINFO("Starting Test Game!!!");
     }
