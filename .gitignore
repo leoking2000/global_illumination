@@ -32,8 +32,8 @@
 *.app
 
 .vs/
-x64/
-x84/
+x64/*
+x84/*
 
-global_illumination/x64/
-global_illumination/x84/
+global_illumination/x64/*
+global_illumination/x84/*

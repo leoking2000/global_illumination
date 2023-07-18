@@ -1,7 +1,0 @@
-﻿  main.cpp
-  Generating code
-  2 of 3591 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    31 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  global_illumination.vcxproj -> C:\Users\User\Desktop\dev\cpp\ptixiaki\global_illumination\x64\Release\global_illumination.exe
