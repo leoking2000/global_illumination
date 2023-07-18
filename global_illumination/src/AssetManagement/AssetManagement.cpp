@@ -21,6 +21,9 @@ namespace GL
 
 	void AssetManagement::CreateTexture2D(const std::string& file_path)
 	{
+		// if we have alredy created the Texture2D from file_path
+		if (Get().m_textures.find(file_path) != Get().m_textures.end()) return;
+
 		Get().m_textures.insert({file_path, TextureFactory::Create(file_path) });
 	}
 

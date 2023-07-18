@@ -80,7 +80,7 @@ public:
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 5.0f, 0.0f);
         params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(22.0f, 11.0f, 14.0f);
-        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
+        params.renderer_params.gi_params.voxelizer_params.resolution = 32;
 
         scene.light = GL::Light(glm::vec3(-5.592f, 5.662f, -1.027f), glm::vec3(0.0f, 0.0f, -1.0f), GL::LightType::SPOTLIGHT);
         scene.light.m_radiance = glm::vec3(50);
@@ -116,6 +116,7 @@ public:
     {
         params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 0.0f, 6.0f);
         params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(11.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 32;
 
         scene.light = GL::Light(glm::vec3(0.0f, 5.0f, 8.0f), glm::vec3(0.0f, -1.0f, 0.0f), GL::LightType::SPOTLIGHT);
         scene.light.up = glm::vec3(1.0f, 0.0f, 0.0f);
@@ -240,6 +241,42 @@ public:
         scene.AddChild(std::move(shutter3_node));
     }
 
+    void SetUpbreakfast_room()
+    {
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(-0.5f, 3.5f, 3.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(13.0f, 12.0f, 16.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 64;
+
+        scene.light = GL::Light(glm::vec3(20.3f, 4.7f, -0.9f), glm::vec3(-1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_shadow_bias = 0.00003f;
+
+        scene.camera.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+        scene.camera.dir = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        u32 main = GL::AssetManagement::LoadFromObjFile("\\breakfast_room\\breakfast_room.obj");
+        GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
+        scene.AddChild(std::move(node));
+    }
+
+    void SetUpLostEmpire()
+    {
+        params.renderer_params.gi_params.voxelizer_params.center = glm::vec3(0.0f, 0.0f, 0.0f);
+        params.renderer_params.gi_params.voxelizer_params.size = glm::vec3(100.0f, 100.0f, 100.0f);
+        params.renderer_params.gi_params.voxelizer_params.resolution = 128;
+
+        scene.light = GL::Light(glm::vec3(20.3f, 4.7f, -0.9f), glm::vec3(-1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        scene.light.m_radiance = glm::vec3(500);
+        scene.light.m_shadow_bias = 0.00003f;
+
+        scene.camera.pos = glm::vec3(0.0f, 0.0f, 0.0f);
+        scene.camera.dir = glm::vec3(1.0f, 0.0f, 0.0f);
+
+        u32 main = GL::AssetManagement::LoadFromObjFile("\\lostempire\\lost_empire.obj");
+        GL::Node node(std::make_unique<GL::GeometryNodeBehavior>(main));
+        scene.AddChild(std::move(node));
+    }
+
     void GameSetUp() override
     {        
         SetUpSceneFactory();
@@ -247,8 +284,15 @@ public:
         //SetUpGITestBox();
         //SetUpSceneTripodroom();
         //SetUpRoom();
+        //SetUpbreakfast_room();
+        //SetUpLostEmpire();
 
+        GL::Timer t;
+
+        t.Reset();
         LOGINFO("Starting Test Game!!!");
+        const f32 ms = t.ElapsedMillis();
+        LOGINFO("%f", ms);
     }
 
     void GameUpdate(f32 dt) override
@@ -287,7 +331,7 @@ int main()
     p.windows_params.title = "TestGame";
     p.windows_params.isResizable = true;
     p.windows_params.vsync = false;
-    p.asset_dir = "C:\\Users\\User\\Desktop\\dev\\computer_graphics\\ptixiaki\\EngineData";
+    p.asset_dir = "assets";
 
     try {
         Game game(p);
