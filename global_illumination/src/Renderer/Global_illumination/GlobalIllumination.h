@@ -14,7 +14,7 @@ namespace GL
 	{
 		VoxelizerParameters voxelizer_params;
 		const u32 rsm_resoulution = u32(1024);
-		u32 bounces = 1;
+		u32 bounces = 2;
 	};
 
 	class GlobalIllumination

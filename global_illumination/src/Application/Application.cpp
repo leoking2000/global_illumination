@@ -6,13 +6,13 @@ namespace GL
 
 	Application::Application(const ApplicationParameters& params)
 		:
-		window(params.windows_params),
-		params(params)
+		m_window(params.windows_params),
+		m_params(params)
 	{
 		AssetManagement::SetAssetDir(params.asset_dir);
 
-		scene.camera.pos = params.cam_pos;
-		scene.camera.dir = params.cam_dir;
+		m_scene.camera.pos = params.cam_pos;
+		m_scene.camera.dir = params.cam_dir;
 
 		LOGINFO("Application Created");
 	}
@@ -24,24 +24,24 @@ namespace GL
 
 	void Application::Run()
 	{
-		GameSetUp();
-		pRenderer = std::make_unique<Renderer>(params.windows_params.width, params.windows_params.height,
-			params.renderer_params);
+		SetUp();
+		m_pRenderer = std::make_unique<Renderer>(m_params.windows_params.width, m_params.windows_params.height,
+			m_params.renderer_params);
 
-		pRenderer->Init(scene);
+		m_pRenderer->Init(m_scene);
 
 		LOGINFO("Application Run");
 
-		window.RunMainLoop([&](f32 dt) {
+		m_window.RunMainLoop([&](f32 dt) {
 
-			glm::vec2 win_size = window.WindowSize();
+			glm::vec2 win_size = m_window.WindowSize();
 
-			GameUpdate(dt);
+			Update(dt);
 			UpdateCamera(dt);
-			scene.Update(dt);
+			m_scene.Update(dt);
 
-			pRenderer->Render((u32)win_size.x, (u32)win_size.y, scene);
-			pRenderer->DebugImGui(scene, dt);
+			m_pRenderer->Render((u32)win_size.x, (u32)win_size.y, m_scene);
+			m_pRenderer->DebugImGui(m_scene, dt);
 		});
 	}
 
@@ -49,25 +49,25 @@ namespace GL
 	{
 		float move_speed = 10.0f;
 
-		if (window.KeyIsPress(KEY_W))
+		if (m_window.KeyIsPress(KEY_W))
 		{
-			scene.camera.pos = scene.camera.pos + scene.camera.dir * move_speed * dt;
+			m_scene.camera.pos = m_scene.camera.pos + m_scene.camera.dir * move_speed * dt;
 		}
-		if (window.KeyIsPress(KEY_S))
+		if (m_window.KeyIsPress(KEY_S))
 		{
-			scene.camera.pos = scene.camera.pos - scene.camera.dir * move_speed * dt;
-		}
-
-		if (window.KeyIsPress(KEY_D))
-		{
-			scene.camera.pos += glm::normalize(glm::cross(scene.camera.dir, glm::vec3(0.0f, 1.0f, 0.0f))) * move_speed * dt;
-		}
-		if (window.KeyIsPress(KEY_A))
-		{
-			scene.camera.pos -= glm::normalize(glm::cross(scene.camera.dir, glm::vec3(0.0f, 1.0f, 0.0f))) * move_speed * dt;
+			m_scene.camera.pos = m_scene.camera.pos - m_scene.camera.dir * move_speed * dt;
 		}
 
-		glm::vec2 mousePos = window.MousePos();
+		if (m_window.KeyIsPress(KEY_D))
+		{
+			m_scene.camera.pos += glm::normalize(glm::cross(m_scene.camera.dir, glm::vec3(0.0f, 1.0f, 0.0f))) * move_speed * dt;
+		}
+		if (m_window.KeyIsPress(KEY_A))
+		{
+			m_scene.camera.pos -= glm::normalize(glm::cross(m_scene.camera.dir, glm::vec3(0.0f, 1.0f, 0.0f))) * move_speed * dt;
+		}
+
+		glm::vec2 mousePos = m_window.MousePos();
 
 		static bool firstMouse = true;
 		static double lastX;
@@ -86,25 +86,25 @@ namespace GL
 		lastY = mousePos.y;
 
 
-		if (window.MouseButtonIsPress(MOUSE_BUTTON_RIGHT))
+		if (m_window.MouseButtonIsPress(MOUSE_BUTTON_RIGHT))
 		{
 			double sensitivity = 0.016;
 			xoffset *= sensitivity;
 			yoffset *= sensitivity;
 
-			scene.camera.yaw += (float)xoffset;
-			scene.camera.pitch += (float)yoffset;
+			m_scene.camera.yaw += (float)xoffset;
+			m_scene.camera.pitch += (float)yoffset;
 
-			if (scene.camera.pitch > PI / 2.0f)
-				scene.camera.pitch = PI / 2.0f;
-			if (scene.camera.pitch < -PI / 2.0f)
-				scene.camera.pitch = -PI / 2.0f;
+			if (m_scene.camera.pitch > PI / 2.0f)
+				m_scene.camera.pitch = PI / 2.0f;
+			if (m_scene.camera.pitch < -PI / 2.0f)
+				m_scene.camera.pitch = -PI / 2.0f;
 
 			glm::vec3 direction;
-			direction.x = glm::cos(scene.camera.yaw) * glm::cos(scene.camera.pitch);
-			direction.y = glm::sin(scene.camera.pitch);
-			direction.z = glm::sin(scene.camera.yaw) * glm::cos(scene.camera.pitch);
-			scene.camera.dir = glm::normalize(direction);
+			direction.x = glm::cos(m_scene.camera.yaw) * glm::cos(m_scene.camera.pitch);
+			direction.y = glm::sin(m_scene.camera.pitch);
+			direction.z = glm::sin(m_scene.camera.yaw) * glm::cos(m_scene.camera.pitch);
+			m_scene.camera.dir = glm::normalize(direction);
 		}
 
 	}

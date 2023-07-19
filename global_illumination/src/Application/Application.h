@@ -12,7 +12,6 @@ namespace GL
 		WindowParameters windows_params;
 		RendererParameters renderer_params;
 
-		// scene
 		std::string asset_dir = "";
 
 		// camera
@@ -33,12 +32,15 @@ namespace GL
 		void Run();
 	protected:
 		virtual void UpdateCamera(f32 dt);
-		virtual void GameSetUp() = 0;
-		virtual void GameUpdate(f32 dt) = 0;
+		virtual void SetUp() = 0;
+		virtual void Update(f32 dt) = 0;
 	protected:
-		ApplicationParameters params;
-		Window window;
-		Scene scene;
-		std::unique_ptr<Renderer> pRenderer;
+		ApplicationParameters m_params;
+		Window m_window;
+		Scene m_scene;
+
+		// unique_ptr used in order to created the renderer after the SetUp is called.
+		// this is important because the SetUp method may change Renderer Parameters.
+		std::unique_ptr<Renderer> m_pRenderer;
 	};
 }

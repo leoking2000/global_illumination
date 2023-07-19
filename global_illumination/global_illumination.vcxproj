@@ -64,6 +64,7 @@
   <ItemGroup>
     <ClInclude Include="src\AssetManagement\AssetManagement.h" />
     <ClInclude Include="src\AssetManagement\Factories\MeshFactory.h" />
+    <ClInclude Include="src\Example\Game.h" />
     <ClInclude Include="src\Global\RandomNumbers.h" />
     <ClInclude Include="src\Global\Timer.h" />
     <ClInclude Include="src\Graphics\AtomicCounter.h" />

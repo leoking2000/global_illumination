@@ -290,5 +290,8 @@
     <ClInclude Include="src\Graphics\AtomicCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Example\Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
