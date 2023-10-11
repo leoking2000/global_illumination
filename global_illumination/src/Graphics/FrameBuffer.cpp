@@ -1,6 +1,7 @@
 #include "OpenGL.h"
 #include "FrameBuffer.h"
 #include "Global/Logger.h"
+#include <stdexcept>
 
 namespace GL
 {

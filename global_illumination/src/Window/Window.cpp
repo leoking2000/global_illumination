@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 #include <exception>
+#include <stdexcept>
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"

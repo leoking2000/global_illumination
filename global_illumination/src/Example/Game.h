@@ -101,7 +101,7 @@ public:
         m_params.renderer_params.gi_params.voxelizer_params.resolution = 128;
 
         m_scene.light = GL::Light(glm::vec3(-2.0f, 6.5f, -1.7f), glm::vec3(1.0f, 0.0f, 0.0f), GL::LightType::SPOTLIGHT);
-        //scene.light = GL::Light(glm::vec3(30.0f, 100.0f, 0.0f), glm::vec3(-30.0f, -70.0f, 0.0f), GL::LightType::SPOTLIGHT);
+        //m_scene.light = GL::Light(glm::vec3(30.0f, 100.0f, 0.0f), glm::vec3(-30.0f, -70.0f, 0.0f), GL::LightType::SPOTLIGHT);
         m_scene.light.m_radiance = glm::vec3(50);
         m_scene.light.m_shadow_bias = 0.00001f;
 

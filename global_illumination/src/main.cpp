@@ -1,4 +1,5 @@
 ﻿#include "Example/Game.h"
+#include <stdexcept>
 
 int main()
 {

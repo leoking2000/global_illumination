@@ -1,5 +1,4 @@
 #pragma once
-#include <mutex>
 #include <stdio.h>
 #include <string>
 
@@ -26,8 +25,6 @@ namespace GL
 		{
 			if (logging_level >= level)
 			{
-				std::scoped_lock lock(logging_mutex);
-
 				printf(tags[(int)level].c_str());
 				printf(msg.c_str(), args...);
 				printf("\n");
@@ -37,11 +34,9 @@ namespace GL
 	private:
 		static std::string tags[4];
 		static LoggingLevel logging_level;
-		static std::mutex logging_mutex;
 	};
 
 	inline LoggingLevel Logger::logging_level = LoggingLevel::INFO;
-	inline std::mutex Logger::logging_mutex;
 
 	inline std::string Logger::tags[4] = {
 		"[ERROR]    ",

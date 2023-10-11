@@ -3,6 +3,7 @@
 #include "Global/Logger.h"
 
 #include <exception>
+#include <stdexcept>
 
 namespace GL
 {
