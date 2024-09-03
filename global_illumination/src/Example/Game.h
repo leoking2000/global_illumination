@@ -280,11 +280,11 @@ public:
 
     void SetUp() override
     {
-        SetUpSceneFactory();
+        //SetUpSceneFactory();
         //SetUpSponza();
         //SetUpGITestBox();
         //SetUpSceneTripodroom();
-        //SetUpRoom();
+        SetUpRoom();
         //SetUpbreakfast_room();
         //SetUpLostEmpire();
     }
